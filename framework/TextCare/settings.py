@@ -12,6 +12,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import environ
+
+
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -127,4 +134,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # More efficient serving via Apache, rather than Django handling them.
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-ALLOWED_HOSTS=['EC2_DNS_NAME']
+ALLOWED_HOSTS=[env('EC2_DNS_NAME')]

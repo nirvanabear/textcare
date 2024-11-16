@@ -18,6 +18,8 @@ profile = ''
 # Needs to be a blank string if no IP needs to be added
 # to the security group.
 client_IP = ''
+#Optional
+describe_rule = ''
 # Can be left blank if client_IP is left blank.
 security_grp = ''
 

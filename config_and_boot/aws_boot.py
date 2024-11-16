@@ -1,6 +1,7 @@
 import boto3
 import time
 import sys
+import subprocess
 # import json
 # import datetime
 # import pprint
@@ -30,11 +31,9 @@ def check_state(instance_id, profile):
     ## TODO  ##
     # If you're feeling up for it, see if boto3.setup_default_session(profile_name='dev') will do the same thing as aws sso login --profile xxxx in the command line.
     
-    ## EDIT ##
+    subprocess.run(['aws', 'sso', 'login', '--profile', f'{profile}'], capture_output=True)
     current_session = boto3.Session(profile_name=profile)
-    # client = boto3.client('ec2')
     client = current_session.client('ec2')
-    ## EDIT ##
 
     instance_data = client.describe_instances(InstanceIds=[instance_id])
     state = instance_data['Reservations'][0]['Instances'][0]['State']['Code']
@@ -106,7 +105,7 @@ def update_config(public_dns_name, config_dir, config_entry):
 ## TODO ##
 # Currently set up only for IPv4.
 # Needs IP version detection.
-def add_security_ingress(client, security_grp, client_IP):
+def add_security_ingress(client, security_grp, client_IP, describe_rule):
     response = client.authorize_security_group_ingress(
         GroupId=security_grp,
         IpPermissions=[
@@ -116,7 +115,7 @@ def add_security_ingress(client, security_grp, client_IP):
                 'IpRanges': [
                     {
                         'CidrIp': client_IP,
-                        'Description': 'SSH access from VPN.',
+                        'Description': describe_rule,
                     },
                 ],
                 'ToPort': 22,
@@ -127,8 +126,27 @@ def add_security_ingress(client, security_grp, client_IP):
 
 
 
+def remove_security_ingress(client, security_grp, client_IP, describe_rule):
+    response = client.revoke_security_group_ingress(
+        GroupId=security_grp,
+        IpPermissions=[
+            {
+                'FromPort': 22,
+                'IpProtocol': 'tcp',
+                'IpRanges': [
+                    {
+                        'CidrIp': client_IP,
+                    },
+                ],
+                'ToPort': 22,
+            },
+        ],
+    )
+    print(response)
 
-def boot_instance(instance_id, config_dir, config_entry, profile, security_grp, client_IP):
+
+
+def boot_instance(instance_id, config_dir, config_entry, profile, security_grp, client_IP, describe_rule):
     icon_counter = 0
     client, state = check_state(instance_id, profile)
 
@@ -144,8 +162,13 @@ def boot_instance(instance_id, config_dir, config_entry, profile, security_grp, 
 
     ## TODO ## what if the state is neither 80 or 16?
 
-    if len(client_IP) > 0:
-        add_security_ingress(client, security_grp, client_IP)
+    add_ip = input(f"Want to add a security rule for IP {client_IP}? (y/n) ")
+    if add_ip == 'y' or add_ip == 'Y':
+        add_security_ingress(client, security_grp, client_IP, describe_rule)
+
+    remove_ip = input(f"Want to remove the security rule for IP {client_IP}? (y/n) ")
+    if remove_ip == 'y' or remove_ip == 'Y':
+        remove_security_ingress(client, security_grp, client_IP, describe_rule)
 
     print('done')
 
@@ -159,4 +182,4 @@ if __name__ == '__main__':
         # file path for SSH config file
         # host name within the config file
 
-    boot_instance(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    boot_instance(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7])

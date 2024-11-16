@@ -33,7 +33,7 @@ SECRET_KEY = ***REMOVED***
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'catalog.apps.CatalogConfig', 
 ]
 
 MIDDLEWARE = [
@@ -113,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Los_Angeles'
 
 USE_I18N = True
 
@@ -134,4 +135,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # More efficient serving via Apache, rather than Django handling them.
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-ALLOWED_HOSTS=[env('EC2_DNS_NAME')]
+ALLOWED_HOSTS=[f"{env('EC2_DNS_NAME')}"]

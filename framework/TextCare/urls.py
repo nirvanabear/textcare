@@ -19,10 +19,12 @@ from django.urls import path, include
 from django.views.generic import RedirectView 
 from django.conf import settings
 from django.conf.urls.static import static
+from whatsapp import views  
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('catalog/', include('catalog.urls')),
-    path('', RedirectView.as_view(url='catalog/', permanent=True)), # redirects root URL to /catalog/
+    # path('', RedirectView.as_view(url='catalog/', permanent=True)), # redirects root URL to /catalog/
+    path('message', views.message),
 ] #+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 # + static() line added to allow static serving during development.

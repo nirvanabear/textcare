@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!-- George Ashworth -->
+<!-- 11/28/23 -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Searches user inputted text for a user inputted character and counts the number of matches.">
+    
+    <meta property="og:title" content="Homework 6 Part 2">
+    <meta property="og:url" content="https://nirvanabear.github.io/website/coding/JS/hw6_pt2.html">
+    <meta property="og:description" content="Searches user inputted text for a user inputted character and counts the number of matches.">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+    <link rel="stylesheet" type="text/css" href="../../stylesheets/style1.css"> 
+
+    <script>
+        var newWindow;
+
+        // Sets functionality after HTML is available.
+        document.addEventListener("DOMContentLoaded", function () {
+            const btn = document.getElementById("enter");
+            const reset = document.getElementById("clear");
+            const search_char = document.getElementById("search_param");
+
+            // var window_flag = false;
+
+            function passData() {
+                var search_char = document.getElementById("search_param").value;
+
+                // assemble HTML to pump into new window:
+                var myText = `<!DOCTYPE html>
+                    <html lang='en'>
+                        <head>
+                        <title>Popup Window</title>
+                        </head>
+                        <body>
+                        <div style='margin:0 auto;'>
+                        <p><strong>Search character "${search_char}" not found in the content you typed.</strong></p>
+                        <input type='button' value='Close Window' onclick='window.close()'>
+                        </div>
+                        </body>
+                    </html>"`
+
+                // open window on the upperleft of the screen
+                const winX = window.screen.width - 320;
+                const winY = window.screen.height - 140;
+                newWindow = window.open("", "new_window",
+                "top=" + winY + ",left=" + winX + ",width=300,height=100");
+
+                newWindow.opener = null;   // this is for security!!!
+
+                // have browser focus on window
+                newWindow.focus();
+
+                // pump html into to this new opened window
+                newWindow.document.write(myText);
+
+                // tell browser that newWindow document is finished loading
+                newWindow.document.close();
+            }
+
+
+            // Checks input format and outputs rounded and rooted numbers.
+            function count_matches() {
+                var output = "";
+
+                const input_val = document.getElementById("user_input").value.toLowerCase();
+                const search_val = document.getElementById("search_param").value.toLowerCase();
+
+                // Creates regex from user input and tests the text also inputted by the user.
+                var regexPattern = new RegExp(search_val, "g");
+                if ((regexPattern.test(input_val))) {
+
+                    if (input_val.match(regexPattern).length > 1) {
+                        output = '<br>The character "' + document.getElementById("search_param").value + '" was found ' + input_val.match(regexPattern).length + ' times in the text.<br><br>'
+                    }
+                    else {
+                        output = '<br>The character "' + document.getElementById("search_param").value + '" was found ' + input_val.match(regexPattern).length + ' time in the text.<br><br>'
+                    }
+                    
+                    document.getElementById("display").innerHTML = output;
+                }
+
+                else {
+                    document.getElementById("display").innerHTML = "";
+                    passData();
+                }
+            }
+
+            // Automatically closes popup window when a new search is triggered.
+            function close_window() {
+                newWindow.close();
+            }
+
+            // Clears input field and resets output.
+            function reset_page() {
+                document.getElementById("display").innerHTML = "";
+            }
+
+            // Sets button and text field action.
+            btn.addEventListener("click", close_window);
+            btn.addEventListener("click", count_matches);
+            reset.addEventListener("click", reset_page);
+            search_char.addEventListener("keypress", function(event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    btn.click();
+                }
+            });
+        });
+
+        // Navigation menu
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('nav.html')
+            .then(res => res.text())
+            .then(text => {
+                document.getElementById("nav_menu").innerHTML = text;
+            })
+        });
+    </script>
+
+    <link rel="shortcut icon" href="satellite.png">
+    <title>Homework 6 Part 2</title>
+</head>
+
+<body class="grid">
+    <header class="grid-area grid-area-1">
+        <h1 style=text-align:center>CNIT 133 Homework 6 Part 2</h1>
+    </header>
+
+    <aside class="grid-area grid-area-2">
+        <div id="nav_menu"></div>
+    </aside>
+
+    <main class="grid-area grid-area-3">
+        <nav>
+            <ul>
+                <li><a href="https://nirvanabear.github.io/website/coding/JS/hw6.html">homework 6 Main</a></li>
+                <li><a href="https://nirvanabear.github.io/website/coding/JS/hw6_pt1.html">homework 6 Part 1: Rounded and Rooted</a></li>
+                <li><a href="https://nirvanabear.github.io/website/coding/JS/hw6_pt3.html">homework 6 Part 3: Phone Number Parser
+                </a></li>
+            </ul>
+        </nav>
+
+        <article>
+            <h2>Text Search</h2><h4>Inputted text will be searched for the indicated character and the number of matches will be displayed</h4>
+
+            <form name="char_finder" style="font-size:medium;">
+
+                <p><label for="user_input"><b>Please enter text to be searched:</b></label></p>
+                <p><textarea rows="4" cols="40" id="user_input" placeholder="Text to be searched"></textarea></p>
+
+                <p><label for="search_param"><b>Please enter a character to search for:</b></label></p>
+                <p><input type="text" id="search_param" size="1" maxlength="1" placeholder="𝛼"></p>
+
+                <p><input type="button" id="enter" value="Process">
+                <input type="reset" id="clear" value="Clear"></p>
+
+                <p id="display" style="font-family: Georgia;"></p>
+
+            </form>
+
+        </article>
+    </main>
+
+    <footer class="grid-area grid-area-4 footer">
+        <a href="mailto:gashwor1@mail.ccsf.edu" class="email">Contact me via email</a>
+
+        <details class="triangle">
+            <summary><a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" class="copyright"></a></summary>
+            CCSF CNIT133 Homework by George Ashworth is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+          </details>
+    </footer>
+
+</body>
+</HTML>

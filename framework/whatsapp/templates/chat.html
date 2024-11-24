@@ -1,0 +1,153 @@
+{% extends "base_generic_2.html" %}
+
+
+{% block title %}
+    <title>Chat-o-rama</title>
+{% endblock %}
+
+
+{% block script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script>
+    // fetch("https://jsonplaceholder.typicode.com/users", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     name: "John Doe",
+    //     email: "johndoe@example.com",
+    //   }),
+    // });
+
+    // Sets functionality after HTML is available. 
+    document.addEventListener("DOMContentLoaded", function () {
+        // const form = document.querySelector("form");
+        // const usernameInput = document.getElementById("username");
+        // const user_input = document.getElementById("user_input");
+        // const emailInput = document.getElementById("email");
+
+        var btn = document.getElementById("enter");
+        const reset = document.getElementById("clear");
+
+
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+
+        // Takes data from input field and sends in HTTP header.
+        async function passData() {
+            const user_input = document.getElementById("user_input").value;
+            const formData = new URLSearchParams();
+            formData.set("Body", user_input.value);
+
+                // event.preventDefault(); // Prevent the default form submission action
+
+            fetch("https://example.com/whatsapp/send_message/", {
+                method: "POST",
+                // body: formData.toString(),
+                body: "Hello again!?!?",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+            });
+        }
+
+        // Clears input field and resets output.
+        function reset_page() {
+            document.getElementById("user_input").innerHTML = "";
+        }
+
+        async function send_http() {
+            const url = "https://example.com/whatsapp/send_message/";
+
+            let data = {
+                body: 'Howdy'
+            }
+
+            let request = new Request(url, {
+                method: 'POST',
+                credentials: "same-origin",
+                body: JSON.stringify(data),
+                headers: new Headers({
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Accept": "application/json",
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                })
+            });
+
+            fetch(request);
+        }
+        
+        
+        // btn.addEventListener("click", passData);
+        btn.addEventListener("click", send_http);
+        // reset.addEventListener("click", reset_page);        
+
+    });
+
+
+</script>
+{% endblock %}
+
+{% block content %}
+  <h1>Local Library Home</h1>
+  <p>
+    Welcome to LocalLibrary, a website developed by
+    <em>Mozilla Developer Network</em>!
+  </p>
+  <h2>Chat-o-rama</h2>
+  <p>Message:</p>
+  <ul>
+    <li><strong>Message:</strong> {{ message }}</li>
+  </ul>
+
+<br><br>
+
+
+
+<!-- <form name="">
+    <textarea rows="4" cols="40" name="input"></textarea>
+
+    <br><br>
+    
+    <input type="button" id="unfade" onclick="process()" value="Process">
+    <input type="reset" id="fadein" value="Clear">
+</form> -->
+
+
+
+<form name="char_finder" style="font-size:medium;">
+    {% csrf_token %}
+    <p><label for="user_input"><b>Please enter text message:</b></label></p>
+    <p><textarea rows="4" cols="40" id="user_input" placeholder="Text to be searched"></textarea></p>
+
+    <!-- <p><label for="search_param"><b>Please enter a character to search for:</b></label></p>
+    <p><input type="text" id="search_param" size="1" maxlength="1" placeholder="𝛼"></p> -->
+
+    <p><input type="button" id="enter" value="Process">
+    <input type="reset" id="clear" value="Clear"></p>
+
+    <p id="display" style="font-family: Georgia;"></p>
+
+</form>
+
+
+
+{% endblock %}

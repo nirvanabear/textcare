@@ -9,17 +9,6 @@
 {% block script %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 <script>
-    // fetch("https://jsonplaceholder.typicode.com/users", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({
-    //     name: "John Doe",
-    //     email: "johndoe@example.com",
-    //   }),
-    // });
-
     // Sets functionality after HTML is available. 
     document.addEventListener("DOMContentLoaded", function () {
         // const form = document.querySelector("form");
@@ -29,9 +18,20 @@
 
         var btn = document.getElementById("enter");
         const reset = document.getElementById("clear");
+        // const scroll = document.getElementById('output'); 
 
+        // Scroll to the bottom
+        // scroll.scrollTop = scroll.scrollHeight; 
+    
 
+        // Also a functional view of the of the messages log.
+        $(document).ready(function() {
+            setInterval(function() {
+                $('#output').load('/static/messages.txt');
+            }, 1000);        
+        });
 
+        // Saves us from CSRF hell.
         function getCookie(name) {
             var cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -48,31 +48,12 @@
             return cookieValue;
         }
 
-
-
-        // Takes data from input field and sends in HTTP header.
-        async function passData() {
-            const user_input = document.getElementById("user_input").value;
-            const formData = new URLSearchParams();
-            formData.set("Body", user_input.value);
-
-                // event.preventDefault(); // Prevent the default form submission action
-
-            fetch("https://example.com/whatsapp/send_message/", {
-                method: "POST",
-                // body: formData.toString(),
-                body: "Hello again!?!?",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-            });
-        }
-
         // Clears input field and resets output.
         function reset_page() {
             document.getElementById("user_input").innerHTML = "";
         }
 
+        // Triggers message-sending URL
         async function send_http() {
             const url = "https://example.com/whatsapp/send_message/";
 
@@ -95,7 +76,7 @@
             fetch(request);
         }
         
-        
+        setInterval();
         // btn.addEventListener("click", passData);
         btn.addEventListener("click", send_http);
         // reset.addEventListener("click", reset_page);        
@@ -106,32 +87,29 @@
 </script>
 {% endblock %}
 
+
 {% block content %}
-  <h1>Local Library Home</h1>
-  <p>
-    Welcome to LocalLibrary, a website developed by
-    <em>Mozilla Developer Network</em>!
-  </p>
-  <h2>Chat-o-rama</h2>
-  <p>Message:</p>
-  <ul>
-    <li><strong>Message:</strong> {{ message }}</li>
-  </ul>
+    <br>
+    <h1>TextCare</h1>
+    <p>
+        Welcome to TextCare, a text-based medical advice app<br>
+    </p>
+    <p>Developed by George & Tiffany</p>
+    <h2>Conversation:</h2>
+    <br>
+    <pre id="output" style="overflow: auto; height: 100px;">
+        <script src="/static/messages.txt"></script>
+        <script>
+            console.log(text);
+        </script>
+    </pre>
+    <!-- <div id="logbox" style="overflow: auto; height: 2px;">
+
+    </div> -->
+
+
 
 <br><br>
-
-
-
-<!-- <form name="">
-    <textarea rows="4" cols="40" name="input"></textarea>
-
-    <br><br>
-    
-    <input type="button" id="unfade" onclick="process()" value="Process">
-    <input type="reset" id="fadein" value="Clear">
-</form> -->
-
-
 
 <form name="char_finder" style="font-size:medium;">
     {% csrf_token %}

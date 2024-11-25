@@ -13,11 +13,11 @@
     document.addEventListener("DOMContentLoaded", function () {
         // const form = document.querySelector("form");
         // const usernameInput = document.getElementById("username");
-        // const user_input = document.getElementById("user_input");
         // const emailInput = document.getElementById("email");
 
         var btn = document.getElementById("enter");
         const reset = document.getElementById("clear");
+        const input_field = document.getElementById("user_input");
         // const scroll = document.getElementById('output'); 
 
         // Scroll to the bottom
@@ -55,10 +55,11 @@
 
         // Triggers message-sending URL
         async function send_http() {
+            const user_input = document.getElementById("user_input").value;
             const url = "https://example.com/whatsapp/send_message/";
 
             let data = {
-                body: 'Howdy'
+                body: user_input
             }
 
             let request = new Request(url, {
@@ -74,13 +75,24 @@
             });
 
             fetch(request);
+
+            // Clears field after sending message.
+            document.getElementById("user_input").innerHTML = "";
         }
+
+
         
-        setInterval();
+        // setInterval();
         // btn.addEventListener("click", passData);
         btn.addEventListener("click", send_http);
-        // reset.addEventListener("click", reset_page);        
-
+        reset.addEventListener("click", reset_page);        
+        input_field.addEventListener("keypress", function(event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    btn.click();
+                    reset.click();
+                }
+        });
     });
 
 
@@ -109,15 +121,12 @@
 
 
 
-<br><br>
+<br>
 
 <form name="char_finder" style="font-size:medium;">
     {% csrf_token %}
     <p><label for="user_input"><b>Please enter text message:</b></label></p>
-    <p><textarea rows="4" cols="40" id="user_input" placeholder="Text to be searched"></textarea></p>
-
-    <!-- <p><label for="search_param"><b>Please enter a character to search for:</b></label></p>
-    <p><input type="text" id="search_param" size="1" maxlength="1" placeholder="𝛼"></p> -->
+    <p><textarea rows="2" cols="40" id="user_input" placeholder="Text to be sent"></textarea></p>
 
     <p><input type="button" id="enter" value="Process">
     <input type="reset" id="clear" value="Clear"></p>

@@ -15,35 +15,34 @@
         // const usernameInput = document.getElementById("username");
         // const emailInput = document.getElementById("email");
 
-        var btn = document.getElementById("enter_num");
-        const reset = document.getElementById("clear_num");
+        var btn = document.getElementById("enter");
+        const reset = document.getElementById("clear");
         const input_field = document.getElementById("user_input");
-        // const input_field = document.getElementById("user_input");
-        // var number = document.getElementById("user_input").value;
-        // var num_btn = document.getElementById("enter_num");
-
         // const scroll = document.getElementById('output'); 
 
         // Scroll to the bottom
         // scroll.scrollTop = scroll.scrollHeight; 
-        // var logfile = "/static/T" + number + "_log.txt";
-        // var call_number;
-
-        // function set_number(){
-        //     var number = document.getElementById("phone_num");
-        //     logfile = "/static/T" + number + "_log.txt";
-        //     call_number = "whatsapp:" + number;
-        //     // document.body.innerHTML = document.body.innerHTML.replace('/static/messages.txt', logfile);
-        //     document.getElementById("console_src").src = logfile;
-        // }
     
+        const url = window.location.search;
+        const param_object = new URLSearchParams(url);
+        const phone_num = param_object.get('phone');
+
+        // console.log(phone_num);
+        // const console = document.getElementById("console_src");
+        // console.src = `/static/T${phone_num}.txt`;
+
+        // document.getElementById("output").innerHTML = 
+        // var myText = `<script src=${phone_num}">
+        //             </html>"`
+        const logfile = '/static/message_logs/T' + phone_num + '_log.txt';
+
 
         // Also a functional view of the of the messages log.
-        // $(document).ready(function() {
-        //     setInterval(function() {
-        //         $('#output').load(logfile);
-        //     }, 1000);        
-        // });
+        $(document).ready(function() {
+            setInterval(function() {
+                $('#output').load(logfile);
+            }, 1000);        
+        });
 
         // Saves us from CSRF hell.
         function getCookie(name) {
@@ -65,25 +64,16 @@
         // Clears input field and resets output.
         function reset_page() {
             document.getElementById("user_input").innerHTML = "";
-            document.getElementById("open_chat").innerHTML = "";
         }
 
         // Triggers message-sending URL
         async function send_http() {
-            var number = document.getElementById("user_input").value;
-            var logfile = "/static/message_logs/T" + number + "_log.txt";
-            var call_number = "whatsapp:+1" + number;
-
-            // Creates link updated with phone number as parameter
-            document.getElementById("open_chat").innerHTML = `<p><a href='open_chat?phone=${number}' target='_blank' rel='noopener noreferr' id='open_chat'>Open new chat window</a></p>`
-
-
-            // Sends request to create message log.
-            const url = "https://example.com/whatsapp/set_chat/";
+            const user_input = document.getElementById("user_input").value;
+            const url = "https://example.com/whatsapp/send_message/";
 
             let data = {
-                file: logfile,
-                to: number
+                number: phone_num,
+                body: user_input
             }
 
             let request = new Request(url, {
@@ -99,17 +89,9 @@
             });
 
             fetch(request);
-                // .then(response => response.json())
-                // .then(data => {
-                //     // Open the data in a new tab
-                //     window.open('https://www.example.com/data', '_blank'); 
-                // });
-
-            // window.location.href = request;
-            // window.open(request, '_blank');
 
             // Clears field after sending message.
-            // document.getElementById("user_input").innerHTML = "";
+            document.getElementById("user_input").innerHTML = "";
         }
 
 
@@ -117,12 +99,12 @@
         // setInterval();
         // btn.addEventListener("click", passData);
         btn.addEventListener("click", send_http);
-        reset.addEventListener("click", reset_page);  
-        // num_btn.addEventListener("click", set_number);
+        reset.addEventListener("click", reset_page);        
         input_field.addEventListener("keypress", function(event) {
                 if (event.keyCode === 13) {
                     event.preventDefault();
                     btn.click();
+                    reset.click();
                 }
         });
     });
@@ -139,14 +121,17 @@
         Welcome to TextCare, a text-based medical advice app<br>
     </p>
     <p>Developed by George & Tiffany</p>
-    <!-- <h2>Conversation:</h2>
+    <h2>Conversation:</h2>
     <br>
     <pre id="output" style="overflow: auto; height: 100px;">
-        <script id="console_src" src="/static/messages.txt"></script>
+        <script>
+            const script = document.createElement('console_src');
+            console_src.src = logfile;
+        </script>
         <script>
             console.log(text);
         </script>
-    </pre> -->
+    </pre>
     <!-- <div id="logbox" style="overflow: auto; height: 2px;">
 
     </div> -->
@@ -155,38 +140,17 @@
 
 <br>
 
-
-<form name="phone" style="font-size:medium;">
-    <!-- Put the CSRF token inside the form -->
-    {% csrf_token %}
-    <p><label for="user_input"><b>Please enter phone number as format:</b></p><p> number with no dashes</p> <p>(eg: 5105551234 )</label></p>
-    <p><textarea rows="1" cols="20" id="user_input" placeholder="Phone number"></textarea></p>
-
-    <p><input type="button" id="enter_num" value="Create Session">
-    <input type="reset" id="clear_num" value="Clear"></p>
-
-    <p id="display" style="font-family: Georgia;"></p>
-
-</form>
-
-<br>
-
-<p><a href="open_chat" target="_blank" rel="noopener noreferr" id="open_chat"></a></p>
-
-
-
-
-<!-- <form name="char_finder" style="font-size:medium;">
+<form name="char_finder" style="font-size:medium;">
     {% csrf_token %}
     <p><label for="user_input"><b>Please enter text message:</b></label></p>
     <p><textarea rows="2" cols="40" id="user_input" placeholder="Text to be sent"></textarea></p>
 
-    <p><input type="button" id="enter" value="Process">
+    <p><input type="button" id="enter" value="Send">
     <input type="reset" id="clear" value="Clear"></p>
 
     <p id="display" style="font-family: Georgia;"></p>
 
-</form> -->
+</form>
 
 
 

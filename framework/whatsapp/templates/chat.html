@@ -75,7 +75,7 @@
             var call_number = "whatsapp:+1" + number;
 
             // Creates link updated with phone number as parameter
-            document.getElementById("open_chat").innerHTML = `<p><a href='open_chat?phone=${number}' target='_blank' rel='noopener noreferr' id='open_chat'>Open new chat window</a></p>`
+            document.getElementById("open_chat").innerHTML = `<p><a href='open_chat?phone=${number}' target='_blank' rel='noopener noreferr' id='open_chat'>Click to open new chat window</a></p>`
 
 
             // Sends request to create message log.
@@ -160,6 +160,7 @@
     <!-- Put the CSRF token inside the form -->
     {% csrf_token %}
     <p><label for="user_input"><b>Please enter phone number as format:</b></p><p> number with no dashes</p> <p>(eg: 5105551234 )</label></p>
+    <p>Then click on the link that appears below.</p>
     <p><textarea rows="1" cols="20" id="user_input" placeholder="Phone number"></textarea></p>
 
     <p><input type="button" id="enter_num" value="Create Session">

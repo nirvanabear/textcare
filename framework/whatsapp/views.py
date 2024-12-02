@@ -10,6 +10,7 @@ from twilio.rest import Client
 
 import requests
 import json
+import re
 
 
 
@@ -31,6 +32,94 @@ def add_first_line(original, string):
     os.rename("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt", original)
 
 
+
+'''
+check patient log, send to chat if there's a match
+open triage path, 
+'''
+
+patient_log = 'patient_log.txt'
+
+# message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + filename_user + "_log.txt"
+# triage_state = filename_user + "_state.txt"
+
+def triage(number, message, waitlist, triage_path, triage_state): 
+    ### test ###
+    num = "###" + number + "###"
+    words = "###" + message + "###"
+    message = message.lower()
+
+    with open(waitlist,'r') as f:
+        for line in f:
+            if line == number:
+                chat_text = ''
+                print(chat_text)
+                return chat_text
+
+    conditions_list = []
+    ### test ###
+    exist = "?"
+    if os.path.exists(triage_state):
+        ### test ###
+        exist = "exists"
+        with open(triage_state, 'r+') as g:
+            with open(triage_path, 'r') as h:
+                path_list = h.readlines()
+                for line in path_list:
+                    line_list = line[:-1].split(",")
+                    line_list[1] = int(line_list[1])
+                    line_list[2] = int(line_list[2])
+                    conditions_list.append(line_list)
+                print(conditions_list)
+            g.seek(0, 0)
+            state = g.readline()
+            print('state: ' + state)
+            new_index = 0
+            if state == '':
+                question = conditions_list[0][0]
+                g.seek(0, 0)
+                g.write(str(0))
+            else:
+                index = int(state)
+                if message == 'y':
+                    new_index = conditions_list[index][1]
+                    print("new_index: " + str(new_index))
+                else:
+                    new_index = conditions_list[index][2]
+                    print("new_index: " + str(new_index))
+                question = conditions_list[new_index][0]
+                g.seek(0, 0)
+                g.write(str(new_index))
+            if new_index == 15:
+                g.seek(0, 0)
+                g.write(str(0))
+                link = "example.com/whatsapp/chat"
+                # link = f"{env('CHAT_LINK')}"
+                question += " Please click on the link to proceed: " + link
+                # Adds number to doctor's waitlist.
+                with open(waitlist, 'a') as i:
+                    i.write(str(number))
+    else:
+        exist = "not_exists"
+        # Creates the state file if none.
+        with open(triage_state, 'w+') as g:
+            with open(triage_path, 'r') as h:
+                path_list = h.readlines()
+                for line in path_list:
+                    line_list = line[:-1].split(",")
+                    line_list[1] = int(line_list[1])
+                    line_list[2] = int(line_list[2])
+                    conditions_list.append(line_list)
+                print(conditions_list)
+            question = conditions_list[0][0]
+            g.seek(0, 0)
+            g.write(str(0))
+    # question = num + words + exist
+    print(question)
+    return question
+
+
+
 @csrf_exempt
 def message(request):
     user = request.POST.get('From')
@@ -40,30 +129,33 @@ def message(request):
     # with open("/home/ubuntu/textcare/framework/staticfiles/new.txt", "w") as file:
     #     file.write("Your text goes here")
     #     file.close()
-    filename_user = user[11:]
+    number = user[11:]
     try:
-        message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + filename_user + "_log.txt"
+
+        message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_log.txt"
         # message_log = "/home/ubuntu/textcare/framework/staticfiles/messages.txt"
         # new_log = "/home/ubuntu/textcare/framework/staticfiles/new.txt"
         message_w_id = "--- " + message
         add_first_line(message_log, message_w_id)
     
-    # # add_first_line(message_log, message_w_id)
 
-    # with open(message_log,'r') as f:
-    #     with open(new_log,'w') as f2: 
-    #         f2.write(message_w_id)
-    #         f2.write(f.read())
-    # # os.remove(message_log)
-    # os.rename('new.txt', message_log)
+        waitlist = "/home/ubuntu/textcare/framework/staticfiles/message_logs/waitlist.txt"
+        triage_path = "/home/ubuntu/textcare/framework/staticfiles/message_logs/triage_path.txt"
+        triage_state = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_state.txt"
+
+        question = triage(number, message, waitlist, triage_path, triage_state)
+
 
         response = MessagingResponse()
-        # response.message('Message received.')
+        response.message(question)
         return HttpResponse(str(response))
 
     except:
+        with open(triage_state, 'w+') as g:
+            g.write('')
+
         response = MessagingResponse()
-        response.message(message_log)
+        response.message('Triage error. Please try again.')
         return HttpResponse(str(response))
 
 # @csrf_exempt
@@ -91,7 +183,7 @@ def chat(request):
 
 
 def set_chat(request):
-    '''Passes contact number to the chat session'''
+    '''es contact number to the chat session'''
     user_input = json.loads(request.body)
 
     make_str = str(user_input)
@@ -238,3 +330,59 @@ def send_message(request):
 
 
     return render(request, 'show_context.html', context=context)
+
+
+
+def end_session(request):
+    ''' Removes phone number from waitlist.txt to reset TextCare'''
+    user_input = json.loads(request.body)
+
+    make_str = str(user_input)
+    # filename = make_str[18:50]
+    phone_num = make_str[-12:-2]
+
+    # Removes the phone number from the waitlist, which allows
+    # the triage session to restart.
+    waitlist = "/home/ubuntu/textcare/framework/staticfiles/message_logs/waitlist.txt"
+    # add_first_line(message_log, "~~~~~~~~~~~~~~~~~~~~")
+    match_list = []
+    with open(waitlist, 'r+') as f:
+        with open("/home/ubuntu/textcare/framework/staticfiles/message_logs/new2.txt",'a') as f2:
+
+            f.seek(0, 0)
+            num_list = f.readlines()
+            for i in range(len(num_list)):
+                # if str(num_list[i])[:-1] == phone_num:
+                if re.match(phone_num, num_list[i]):
+                    match_list.append(i)
+            for j in range(len(match_list)-1, -1, -1):
+                del num_list[match_list[j]]
+            f.seek(0, 0)
+            for each in num_list:
+                f2.write(each)
+    os.remove(waitlist)
+    os.rename("/home/ubuntu/textcare/framework/staticfiles/message_logs/new2.txt", waitlist)
+
+    # Resets the triage state.
+    triage_state = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + phone_num + "_state.txt"
+    with open(triage_state, 'w+') as g:
+            g.write('')
+
+    context = {
+        'match_list': match_list,
+        'num_list': num_list,
+        'phone_num': phone_num,
+        'user_input': user_input,
+    }
+
+    return render(request, 'end_session.html', context=context)
+
+
+    # with open(original,'a+') as f:
+    #     with open("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt",'a') as f2:
+    #         f2.write(string)
+    #         f2.write("\n")
+    #         f.seek(0, 0)
+    #         f2.write(f.read())
+    # os.remove(original)
+    # os.rename("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt", original)

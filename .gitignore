@@ -9,3 +9,7 @@
 
 # Javascript/HTML reference file
 framework/whatsapp/templates/hw6_pt2.html
+
+# BFG private data purge
+passwords.txt
+bfg-1.14.0.jar

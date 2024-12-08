@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from twilio.twiml.messaging_response import MessagingResponse
 
@@ -189,6 +189,25 @@ def set_chat(request):
     make_str = str(user_input)
     filename = make_str[18:50]
     phone_num = make_str[-12:-2]
+    token_v0 = make_str[65:]
+    token = token_v0[:-22]
+
+    recaptcha_url = " https://www.google.com/recaptcha/api/siteverify"
+    param_dict = {
+        'secret': f"{env('RECAPTCHA_SECRET')}",
+        'response': token
+    }
+    recaptcha_resp = requests.get(url=recaptcha_url, params=param_dict)
+    recaptcha_data = recaptcha_resp.json()
+
+    key_values = []
+    for key, value in recaptcha_data.items():
+        key_values.append(key)
+        key_values.append(value)
+    key_values = str(key_values)
+    # recaptcha_str = str(recaptcha_data)
+    # recaptcha_dict = json.loads(recaptcha_str)
+    
 
     message_log = "/home/ubuntu/textcare/framework/staticfiles/" + filename
     add_first_line(message_log, "~~~~~~~~~~~~~~~~~~~~")
@@ -197,12 +216,17 @@ def set_chat(request):
         'make_str': make_str,
         'filename': filename,
         'phone_num': phone_num,
+        'token': token,
+        # 'recaptcha_str': recaptcha_str,
+        # 'key values': key_values,
+        'success': recaptcha_data['success'],
+        'challenge_ts': recaptcha_data['challenge_ts'],
         'request': request,
-        # 'body': json.loads(request.POST.dict())
     }
 
-    # return render(request, 'set_chat.html' context=context)
-    return render(request, 'set_chat.html', context=context)
+    # Use the render() response instead to view the context dict in Developer Tools
+    # return render(request, 'set_chat.html', context=context)
+    return JsonResponse(recaptcha_data)
 
 
 
@@ -308,6 +332,8 @@ def send_message(request):
     # whatsapp_num = f"whatsapp:+1{phone_num}"
     twilio_phone = f"{env('TWILIO_PHONE')}"
 
+    ## TODO ##
+    # Limit messages to only number in waitlist.txt?
     message = client.messages.create(
         body=f"{body}",
         from_=f"whatsapp:+1{twilio_phone}",

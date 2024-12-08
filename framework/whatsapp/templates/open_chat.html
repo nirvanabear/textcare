@@ -147,7 +147,7 @@
         Welcome to TextCare, a text-based medical advice app<br>
     </p>
     <p>Developed by George & Tiffany</p>
-    <h2>Conversation:</h2>
+    <h2>Doctor's Chat Console:</h2>
     <br>
     <pre id="output" style="overflow: auto; height: 100px;">
         <script>
@@ -168,17 +168,23 @@
 
 <form name="char_finder" style="font-size:medium;">
     {% csrf_token %}
-    <p><label for="user_input"><b>Hit enter to send text message:</b></label></p>
+    <p><label for="user_input"><b>Hit enter, or click "Send", to send text message:</b></nb></b></label></p>
     <p><textarea rows="2" cols="40" id="user_input" placeholder="Text to be sent"></textarea></p>
 
     <p><input type="button" id="enter" value="Send">
     <input type="reset" id="clear" value="Clear">
     <input type="button" id="end" value="End Session"></p>
 
+    <p><b>Click "End Session" to end chat session and return patient to triage.</b></p>
+
     <p id="display" style="font-family: Georgia;"></p>
 
 </form>
 
+<br>
 
+<a href="https://github.com/nirvanabear/textcare/issues" target="_blank" rel="noopener noreferr">Feedback? Questions? Problems?</a>
+<p>Click the link above, then click the green "New issue" button,<br>
+or add your comments to an existing issue in the list.</p>
 
 {% endblock %}

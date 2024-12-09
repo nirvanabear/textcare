@@ -12,11 +12,19 @@ import requests
 import json
 import re
 
+import openai
+from django.db import transaction
+from .models import Conversation
+from .utils import send_message2, logger
+
+# from openai import OpenAI
 
 
 # Initialise environment variables
 env = environ.Env()
 environ.Env.read_env()
+
+openai.api_key = f"{env('OPENAI_API_KEY')}"
 
 
 def add_first_line(original, string):
@@ -122,6 +130,7 @@ def triage(number, message, waitlist, triage_path, triage_state):
 
 @csrf_exempt
 def message(request):
+
     user = request.POST.get('From')
     message = request.POST.get('Body')
     print(f'{user} says {message}')
@@ -412,3 +421,49 @@ def end_session(request):
     #         f2.write(f.read())
     # os.remove(original)
     # os.rename("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt", original)
+
+
+@csrf_exempt
+def reply(request):
+    # try:
+    # Extract the phone number from the incoming webhook request
+    whatsapp_number = request.POST.get('From').split("whatsapp:")[-1]
+    print(f"Sending the ChatGPT response to this number: {whatsapp_number}")
+
+    # Call the OpenAI API to generate text with ChatGPT
+    body = request.POST.get('Body', '')
+    messages = [{"role": "user", "content": body}]
+    # messages.append({"role": "system", "content": "You're an investor, a serial founder and you've sold many startups. You understand nothing but business."})
+
+    # messages.append({"role": "system", "content": "You are a triage nurse. Ask questions to determine the kind of health care needed."})
+    messages.append({"role": "system", "content": "You are a triage nurse. A patient is telling you their symptoms. Give a recommendation for the kind of specialist doctor that should been seen by the patient."})
+
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo-0125",
+        messages=messages,
+        max_tokens=200,
+        n=1,
+        stop=None,
+        temperature=0.5
+        )
+
+    # The generated text
+    chatgpt_response = response.choices[0].message.content
+
+    
+    # Store the conversation in the database
+    # try:
+    #     with transaction.atomic():
+    #             conversation = Conversation.objects.create(
+    #                 sender=whatsapp_number,
+    #                 message=body,
+    #                 response=chatgpt_response
+    #             )
+    #             conversation.save()
+    #             logger.info(f"Conversation #{conversation.id} stored in database")
+    # except Exception as e:
+    #     logger.error(f"Error storing conversation in database: {e}")
+    #     return HttpResponse(status=500)
+
+    send_message2(whatsapp_number, chatgpt_response)
+    return HttpResponse('')

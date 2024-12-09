@@ -25,7 +25,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('catalog/', include('catalog.urls')),
     path('', RedirectView.as_view(url='catalog/', permanent=True)), # redirects root URL to /catalog/
-    path('message', views.message),
+    # path('message', views.message), # TextCare incoming endpoint
+    path('message', views.reply), # ChatGPT incoming endpoint
     path('whatsapp/', include('whatsapp.urls')),
 ] #+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 # + static() line added to allow static serving during development.

@@ -7,6 +7,18 @@
 
 
 {% block script %}
+<style>
+    #clear_num:active {
+        background-color: #0072B2;
+        color: #E69F00;
+    }
+    #enter_num:active {
+        background-color: #0072B2;
+        color: #E69F00;
+    }
+</style>
+
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
@@ -82,7 +94,8 @@
 
 
             // Sends request to create message log.
-            const url = "https://example.com/whatsapp/set_chat/";
+            const url = "{{ set_chat_url }}";
+
 
             let data = {
                 file: logfile,
@@ -144,9 +157,8 @@
     <br>
     <h1>TextCare</h1>
     <p>
-        Welcome to TextCare, a text-based medical advice app<br>
-    </p>
-    <p>Developed by George & Tiffany</p>
+        Welcome to TextCare, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a text-based medical advice app<br>
+        Developed by George & Tiffany</p>
     <!-- <h2>Conversation:</h2>
     <br>
     <pre id="output" style="overflow: auto; height: 100px;">
@@ -161,13 +173,13 @@
 
 
 
-<br>
+
 
 
 <form name="phone" style="font-size:medium;">
     <!-- Put the CSRF token inside the form -->
     {% csrf_token %}
-    <p><label for="user_input"><b>Please enter phone number as format:</b></p><p> number with no dashes</p> <p>(eg: 5105551234 )</label></p>
+    <p><label for="user_input"><b>Please enter phone number with no dashes:</b></p> <p>(eg: 5105551234 )</label></p>
     <p>Then click on the link that appears below.</p>
     <p><textarea rows="1" cols="15" id="user_input" placeholder="Phone number"></textarea></p>
 
@@ -178,11 +190,9 @@
 
 </form>
 
-<br>
-
 <p><a href="open_chat" target="_blank" rel="noopener noreferr" id="open_chat"></a></p>
 
-
+<br><br><br><br><br>
 
 
 <!-- <form name="char_finder" style="font-size:medium;">

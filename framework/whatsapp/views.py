@@ -30,8 +30,9 @@ openai.api_key = f"{env('OPENAI_API_KEY')}"
 def add_first_line(original, string):
     # file = open(original, 'w')
     # file.close()
-    with open(original,'a+') as f:
-        with open("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt",'a') as f2:
+    with open(original,'a+', encoding='utf-8') as f:
+        with open("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt",'a', encoding='utf-8') as f2:
+            # print("where is the error?")
             f2.write(string)
             f2.write("\n")
             f.seek(0, 0)
@@ -57,6 +58,7 @@ def triage(number, message, waitlist, triage_path, triage_state):
     words = "###" + message + "###"
     message = message.lower()
 
+    # Bypass triage questions and send caller to chat.
     with open(waitlist,'r') as f:
         for line in f:
             if line == number:
@@ -66,10 +68,10 @@ def triage(number, message, waitlist, triage_path, triage_state):
 
     conditions_list = []
     ### test ###
-    exist = "?"
+    # exist = "?"
     if os.path.exists(triage_state):
         ### test ###
-        exist = "exists"
+        # exist = "exists"
         with open(triage_state, 'r+') as g:
             with open(triage_path, 'r') as h:
                 path_list = h.readlines()
@@ -79,11 +81,13 @@ def triage(number, message, waitlist, triage_path, triage_state):
                     line_list[2] = int(line_list[2])
                     conditions_list.append(line_list)
                 print(conditions_list)
+            # Reads current state.
             g.seek(0, 0)
             state = g.readline()
             print('state: ' + state)
             new_index = 0
-            if state == '':
+            #####################
+            if state == '':  #####
                 question = conditions_list[0][0]
                 g.seek(0, 0)
                 g.write(str(0))
@@ -98,17 +102,17 @@ def triage(number, message, waitlist, triage_path, triage_state):
                 question = conditions_list[new_index][0]
                 g.seek(0, 0)
                 g.write(str(new_index))
+                ######################
             if new_index == 15:
                 g.seek(0, 0)
                 g.write(str(0))
-                link = "example.com/whatsapp/chat"
-                # link = f"{env('CHAT_LINK')}"
+                link = f"{env('CHAT_LINK')}"
                 question += " Please click on the link to proceed: " + link
                 # Adds number to doctor's waitlist.
                 with open(waitlist, 'a') as i:
                     i.write(str(number))
     else:
-        exist = "not_exists"
+        # exist = "not_exists"
         # Creates the state file if none.
         with open(triage_state, 'w+') as g:
             with open(triage_path, 'r') as h:
@@ -135,15 +139,12 @@ def message(request):
     message = request.POST.get('Body')
     print(f'{user} says {message}')
 
-    # with open("/home/ubuntu/textcare/framework/staticfiles/new.txt", "w") as file:
-    #     file.write("Your text goes here")
-    #     file.close()
+ 
     number = user[11:]
     try:
 
         message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_log.txt"
-        # message_log = "/home/ubuntu/textcare/framework/staticfiles/messages.txt"
-        # new_log = "/home/ubuntu/textcare/framework/staticfiles/new.txt"
+
         message_w_id = "--- " + message
         add_first_line(message_log, message_w_id)
     
@@ -161,7 +162,7 @@ def message(request):
 
     except:
         with open(triage_state, 'w+') as g:
-            g.write('')
+            g.write(str(0))
 
         response = MessagingResponse()
         response.message('Triage error. Please try again.')
@@ -177,16 +178,13 @@ def message(request):
 def chat(request):
     """Chat function for WhatsApp sending"""
 
-    # account_sid = f"{env('TWILIO_ACCOUNT_SID')}"
-    # auth_token = f"{env('TWILIO_AUTH_TOKEN')}"
-    
-    # client = Client(account_sid, auth_token)
-
-    # context = {'message': message.body}
-
     message = "template check"
+    set_chat_url = f"{env('SET_CHAT_URL')}"
 
-    context = {'message': message}
+    context = {
+        'message': message,
+        'set_chat_url': set_chat_url
+    }
 
     return render(request, 'chat.html', context=context)
 
@@ -243,31 +241,6 @@ def set_chat(request):
 def previous_send_message(request):
 #     """Chat function for WhatsApp sending"""
 
-#     account_sid = f"{env('TWILIO_ACCOUNT_SID')}"
-#     auth_token = f"{env('TWILIO_AUTH_TOKEN')}"
-    
-#     client = Client(account_sid, auth_token)
-
-#     # user_input = request.POST.get('Headers')
-#     # user_input = json.dumps(request.POST.dict())
-#     user_input = json.loads(request.body)
-#     # user_input = request
-#     # user_input = "WHY?"
-
-#     make_str = str(user_input)
-#     cut_front = make_str[10:]
-#     message_edit = cut_front[:-2]
-#     phone_num = make_str[-23:-2]
-
-#     # output = ''
-#     # for key, value in user_input.items():
-#     #     output += key, ":", value, ", "
-
-
-#     message_log = "/home/ubuntu/textcare/framework/staticfiles/messages.txt"
-#     message_w_id = "*** " + message_edit
-#     add_first_line(message_log, message_w_id)
-
 #     context = {
 #         'message': message.body,
 #         'message_edit': message_edit,
@@ -290,26 +263,17 @@ def previous_send_message(request):
 def open_chat(request):
     """Chat function for WhatsApp sending"""
 
-    # account_sid = f"{env('TWILIO_ACCOUNT_SID')}"
-    # auth_token = f"{env('TWILIO_AUTH_TOKEN')}"
-    
-    # client = Client(account_sid, auth_token)
+    send_message_url = f"{env('SEND_MESSAGE_URL')}"
+    end_session_url = f"{env('END_SESSION_URL')}"
+    issues_url = f"{env('ISSUES_URL')}"
 
+    context = {
+        'send_message_url': send_message_url,
+        'end_session_url': end_session_url,
+        'issues_url': issues_url,
+    }
 
-    # context = {'message': message.body}
-
-    # user_input = json.loads(request.body)
-
-    # make_str = str(user_input)
-    # filename = make_str[18:37]
-    # phone_num = make_str[-12:-2]
-
-
-    # message = "template check"
-
-    # context = {'make_str': make_str}
-
-    return render(request, 'open_chat.html')
+    return render(request, 'open_chat.html', context=context)
 
 
 
@@ -403,6 +367,11 @@ def end_session(request):
     with open(triage_state, 'w+') as g:
             g.write('')
 
+    # Resets transcript with TriageGPT.
+    transcript = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + phone_num + "_transcript.txt"
+    with open(transcript, 'w+') as t:
+            t.write('')
+
     context = {
         'match_list': match_list,
         'num_list': num_list,
@@ -423,24 +392,23 @@ def end_session(request):
     # os.rename("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt", original)
 
 
-@csrf_exempt
-def reply(request):
-    # try:
-    # Extract the phone number from the incoming webhook request
-    whatsapp_number = request.POST.get('From').split("whatsapp:")[-1]
-    print(f"Sending the ChatGPT response to this number: {whatsapp_number}")
 
-    # Call the OpenAI API to generate text with ChatGPT
-    body = request.POST.get('Body', '')
-    messages = [{"role": "user", "content": body}]
-    # messages.append({"role": "system", "content": "You're an investor, a serial founder and you've sold many startups. You understand nothing but business."})
+# def gpt_triage(number, message, waitlist, triage_path, triage_state):
+#     with open(waitlist,'r') as f:
+#         for line in f:
+#             if line == number:
+#                 chat_text = ''
+#                 print(chat_text)
+#                 return chat_text    
 
-    # messages.append({"role": "system", "content": "You are a triage nurse. Ask questions to determine the kind of health care needed."})
-    messages.append({"role": "system", "content": "You are a triage nurse. A patient is telling you their symptoms. Give a recommendation for the kind of specialist doctor that should been seen by the patient."})
+
+
+def chat_switch(last_message):
+    last_message.append({"role": "system", "content": "You are a triage nurse. Read the conversation between a Triage Nurse and a Patient and give a recommendation for the kind of specialist doctor that should treat the patient."})
 
     response = openai.chat.completions.create(
         model="gpt-3.5-turbo-0125",
-        messages=messages,
+        messages=last_message,
         max_tokens=200,
         n=1,
         stop=None,
@@ -449,21 +417,157 @@ def reply(request):
 
     # The generated text
     chatgpt_response = response.choices[0].message.content
+    return chatgpt_response
 
-    
-    # Store the conversation in the database
-    # try:
-    #     with transaction.atomic():
-    #             conversation = Conversation.objects.create(
-    #                 sender=whatsapp_number,
-    #                 message=body,
-    #                 response=chatgpt_response
-    #             )
-    #             conversation.save()
-    #             logger.info(f"Conversation #{conversation.id} stored in database")
-    # except Exception as e:
-    #     logger.error(f"Error storing conversation in database: {e}")
-    #     return HttpResponse(status=500)
 
-    send_message2(whatsapp_number, chatgpt_response)
-    return HttpResponse('')
+
+@csrf_exempt
+def reply(request):
+    # Loop the GPT three times
+        # Need a state.txt of the loop
+    # Then send to chat
+    # Post copy of the GPT triage to the bottom of the chat page
+    whatsapp_number = request.POST.get('From').split("whatsapp:")[-1]
+    print(f"Sending the ChatGPT response to this number: {whatsapp_number}")
+    number = whatsapp_number[2:]
+    triage_state = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_state.txt"
+    print("triage state file: " + triage_state)
+    transcript = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_transcript.txt"
+    try:
+        # Extract the message from the incoming webhook request.
+        body = request.POST.get('Body', '')
+
+        # Adds previous parts of the conversation to the query.
+        with open(transcript, 'a+', encoding='utf-8') as t:
+            print("successful open")
+            t.seek(0, 0)
+            tscript_list = t.readlines()
+            # if tscript_text.strip() != '':
+            # tscript_text += '\n'
+            print(tscript_list)
+            tscript_text = ''
+            for line in tscript_list:
+                tscript_text += line
+            print(tscript_text)
+
+        body_w_tscript = tscript_text + "Patient: " + body
+        messages = [{"role": "user", "content": body_w_tscript}]        
+
+        # Log of messages for the incoming phone number.
+        message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_log.txt"
+        message_w_id = "--- " + body
+        # Adds message to message log for this phone number.
+        add_first_line(message_log, message_w_id)
+
+        # Checks waitlist and if found, bypasses GPT for the live chat.
+        waitlist = "/home/ubuntu/textcare/framework/staticfiles/message_logs/waitlist.txt"
+        with open(waitlist,'r') as f:
+            for line in f:
+                # .strip() removes \n for match purposes.
+                if line.strip() == number:
+                    print("Matching line: " + line)
+                    chat_text = 'Bypass to the chat function!'
+                    print(chat_text)
+                    return chat_text
+            print("No matches in waitlist.")
+
+        messages.append({"role": "system", "content": "You are a Triage Nurse. The incoming message is a conversation between a Patient and a Triage Nurse who is asking questions to determine the kind of health care the Patient needs. Ask two medical triage questions as the Triage Nurse to continue the conversation and get a better understanding of the situation."})
+
+        # messages.append({"role": "system", "content": "You are a triage nurse. A patient is telling you their symptoms. Give a recommendation for the kind of specialist doctor that should been seen by the patient."})
+
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo-0125",
+            messages=messages,
+            max_tokens=200,
+            n=1,
+            stop=None,
+            temperature=0.5
+            )
+
+        # The generated text
+        chatgpt_response = response.choices[0].message.content
+
+        print("just after chatgpt response")
+        print(chatgpt_response)
+
+        # transcript = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_transcript.txt"
+        with open(transcript, 'a+', encoding='utf-8') as t:
+            t.write("Patient: " + body + "\n")
+            t.write(chatgpt_response + "\n")
+
+        # Checks if triage state for this phone number exists.
+        if os.path.exists(triage_state):
+            print("exists!")
+            with open(triage_state, 'r+') as g:
+                # Reads current state.
+                print("triage state opened")
+                g.seek(0, 0)
+                state_str = g.readline().strip()
+                if state_str == '':
+                    state_str = '0'
+                print("state_str: " + state_str)
+                state = int(state_str)
+                print("state: #" + state_str + "#")
+                if state == 0:
+                    welcome = "Welcome to TextCare! \n\n" + chatgpt_response
+                    chatgpt_response = welcome
+                # Adds TriageGPTs output to the chat history.
+                if state <= 2:
+                    triage_msg = "+++ " + chatgpt_response
+                    add_first_line(message_log, triage_msg)
+                # If state is greater than 2, adds number to waitlist.
+                if state > 2:
+                    print("greater than")
+                    with open(waitlist, 'a') as i:
+                        i.write(str(number))
+                        link = f"{env('CHAT_LINK')}"
+                        print(link)
+                        link_info = "We'll get you to a doctor now. Please click on the link to proceed: " + link
+                        chatgpt_response += "\n\n" + link_info
+                    last_message = [{"role": "user", "content": body_w_tscript}]
+                    last_response = chat_switch(last_message) + "\n\n" + link_info
+                    send_message2(whatsapp_number, last_response)
+                    return HttpResponse('')
+                # If state is less than 2, increments state.
+                else:      
+                    g.seek(0, 0)
+                    state += 1
+                    g.write(str(state))
+        else:
+            print("not exists!")
+            # Creates the state file if none. Sets state to 0.
+            with open(triage_state, 'w+') as g:
+                g.seek(0, 0)
+                g.write(str(0))
+            # Adds TriageGPT response to the chat log.
+            triage_msg = "+++ " + chatgpt_response
+            add_first_line(message_log, triage_msg)
+
+        send_message2(whatsapp_number, chatgpt_response)
+
+        return HttpResponse('')
+
+        
+        # Store the conversation in the database
+        # try:
+        #     with transaction.atomic():
+        #             conversation = Conversation.objects.create(
+        #                 sender=whatsapp_number,
+        #                 message=body,
+        #                 response=chatgpt_response
+        #             )
+        #             conversation.save()
+        #             logger.info(f"Conversation #{conversation.id} stored in database")
+        # except Exception as e:
+        #     logger.error(f"Error storing conversation in database: {e}")
+        #     return HttpResponse(status=500)
+
+    except:
+        with open(triage_state, 'w+') as g:
+            g.write('')
+        with open(transcript, 'w+') as t:
+            t.write('')
+
+        response = MessagingResponse()
+        response.message('TriageGPT error. Please try again.')
+        return HttpResponse(str(response))

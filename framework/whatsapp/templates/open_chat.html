@@ -7,6 +7,21 @@
 
 
 {% block script %}
+<style>
+    #end:active {
+        background-color: #0072B2;
+        color: #E69F00;
+    }
+    #clear:active {
+        background-color: #0072B2;
+        color: #E69F00;
+    }
+    #enter:active {
+        background-color: #0072B2;
+        color: #E69F00;
+    }
+</style>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 <script>
     // Sets functionality after HTML is available. 
@@ -71,7 +86,7 @@
         async function send_http() {
             const user_input = document.getElementById("user_input").value;
             // document.getElementById("user_input").innerHTML = "";
-            const url = "https://example.com/whatsapp/send_message/";
+            const url = "{{ send_message_url }}";
 
             let data = {
                 number: phone_num,
@@ -99,7 +114,7 @@
 
 
         function end_session() {
-            const url = "https://example.com/whatsapp/end_session/";
+            const url = "{{ end_session_url }}";
 
             let data = {
                 number: phone_num,
@@ -118,14 +133,20 @@
             });
             fetch(request);
         }
-
+        
+        function change_end_color(location, addClass, elem) {
+            // document.getElementById("end").innerHTML = "#E69F00";
+            elem.className += addClass;
+            window.location.href = location;
+        }
         
         // setInterval();
         // btn.addEventListener("click", passData);
         btn.addEventListener("click", send_http);
         // btn.addEventListener("click", reset_page); 
         reset.addEventListener("click", reset_page); 
-        end.addEventListener("click", end_session);       
+        end.addEventListener("click", end_session); 
+        // end.addEventListener("touchstart", change_end_color);      
         input_field.addEventListener("keypress", function(event) {
                 if (event.keyCode === 13) {
                     event.preventDefault();
@@ -134,6 +155,7 @@
                 }
         });
     });
+
 
 
 </script>
@@ -169,7 +191,7 @@
 <form name="char_finder" style="font-size:medium;">
     {% csrf_token %}
     <p><label for="user_input"><b>Hit enter, or click "Send", to send text message:</b></nb></b></label></p>
-    <p><textarea rows="2" cols="40" id="user_input" placeholder="Text to be sent"></textarea></p>
+    <p><textarea rows="2" cols="34" id="user_input" placeholder="Text to be sent"></textarea></p>
 
     <p><input type="button" id="enter" value="Send">
     <input type="reset" id="clear" value="Clear">
@@ -188,7 +210,7 @@ To restart, send an incoming text from the client's phone to the system.
 <br>
 
 </p>
-<a href="https://github.com/nirvanabear/textcare/issues" target="_blank" rel="noopener noreferr">Feedback? Questions? Problems?</a>
+<a href="{{ issues_url }}" target="_blank" rel="noopener noreferr">Feedback? Questions? Problems?</a>
 <p style="font-size: small;">Click the link above, then click the green "New issue" button,<br>
 or add your comments to an existing issue in the list.</p>
 

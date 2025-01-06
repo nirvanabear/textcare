@@ -17,7 +17,7 @@ from django.db import transaction
 from .models import Conversation
 from .utils import send_message2, logger
 
-# from openai import OpenAI
+
 
 
 # Initialise environment variables
@@ -28,11 +28,9 @@ openai.api_key = f"{env('OPENAI_API_KEY')}"
 
 
 def add_first_line(original, string):
-    # file = open(original, 'w')
-    # file.close()
+    '''Adds a new line to a text file as the first line.'''
     with open(original,'a+', encoding='utf-8') as f:
         with open("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt",'a', encoding='utf-8') as f2:
-            # print("where is the error?")
             f2.write(string)
             f2.write("\n")
             f.seek(0, 0)
@@ -42,36 +40,21 @@ def add_first_line(original, string):
 
 
 
-'''
-check patient log, send to chat if there's a match
-open triage path, 
-'''
-
-patient_log = 'patient_log.txt'
-
-# message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + filename_user + "_log.txt"
-# triage_state = filename_user + "_state.txt"
-
 def triage(number, message, waitlist, triage_path, triage_state): 
-    ### test ###
-    num = "###" + number + "###"
-    words = "###" + message + "###"
+    '''Increments incoming calls through the triage question pathway'''
     message = message.lower()
 
-    # Bypass triage questions and send caller to chat.
+    # Bypass triage questions and send caller to doctor chat.
     with open(waitlist,'r') as f:
         for line in f:
             if line == number:
-                chat_text = ''
-                print(chat_text)
-                return chat_text
+                bypass_note = "Call forwarded to chat."
+                print(bypass_note)
+                return bypass_note
 
+    # Checks triage state document and displays next question.
     conditions_list = []
-    ### test ###
-    # exist = "?"
     if os.path.exists(triage_state):
-        ### test ###
-        # exist = "exists"
         with open(triage_state, 'r+') as g:
             with open(triage_path, 'r') as h:
                 path_list = h.readlines()
@@ -86,23 +69,22 @@ def triage(number, message, waitlist, triage_path, triage_state):
             state = g.readline()
             print('state: ' + state)
             new_index = 0
-            #####################
-            if state == '':  #####
+            # Initial condition.
+            if state == '':  
                 question = conditions_list[0][0]
                 g.seek(0, 0)
                 g.write(str(0))
+            # Choose 'yes' or 'no'.
             else:
                 index = int(state)
                 if message == 'y':
                     new_index = conditions_list[index][1]
-                    print("new_index: " + str(new_index))
                 else:
                     new_index = conditions_list[index][2]
-                    print("new_index: " + str(new_index))
                 question = conditions_list[new_index][0]
                 g.seek(0, 0)
                 g.write(str(new_index))
-                ######################
+            # End condition.
             if new_index == 15:
                 g.seek(0, 0)
                 g.write(str(0))
@@ -112,7 +94,6 @@ def triage(number, message, waitlist, triage_path, triage_state):
                 with open(waitlist, 'a') as i:
                     i.write(str(number))
     else:
-        # exist = "not_exists"
         # Creates the state file if none.
         with open(triage_state, 'w+') as g:
             with open(triage_path, 'r') as h:
@@ -126,7 +107,6 @@ def triage(number, message, waitlist, triage_path, triage_state):
             question = conditions_list[0][0]
             g.seek(0, 0)
             g.write(str(0))
-    # question = num + words + exist
     print(question)
     return question
 
@@ -134,17 +114,16 @@ def triage(number, message, waitlist, triage_path, triage_state):
 
 @csrf_exempt
 def message(request):
-
+    '''Receives message and passes it to the prewritten
+    question and answer version of triage.'''
     user = request.POST.get('From')
     message = request.POST.get('Body')
     print(f'{user} says {message}')
-
  
     number = user[11:]
     try:
-
+    
         message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_log.txt"
-
         message_w_id = "--- " + message
         add_first_line(message_log, message_w_id)
     
@@ -168,12 +147,6 @@ def message(request):
         response.message('Triage error. Please try again.')
         return HttpResponse(str(response))
 
-# @csrf_exempt
-# age(self):
-#     return HttpResponse('Hello!')
-
-
-##################
 
 def chat(request):
     """Chat function for WhatsApp sending"""
@@ -236,29 +209,6 @@ def set_chat(request):
     return JsonResponse(recaptcha_data)
 
 
-
-# @csrf_exempt
-def previous_send_message(request):
-#     """Chat function for WhatsApp sending"""
-
-#     context = {
-#         'message': message.body,
-#         'message_edit': message_edit,
-#         'phone_num': phone_num,
-#         'make_str': make_str,
-#         'request': request,
-#         'body': json.loads(request.POST.dict())
-#     }
-
-
-    # return render(request, 'show_context.html', context=context)
-    return render(request, 'show_context.html')
-
-
-###############
-
-
-##################
 
 def open_chat(request):
     """Chat function for WhatsApp sending"""

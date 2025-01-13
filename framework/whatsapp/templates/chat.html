@@ -90,13 +90,15 @@
 
 
             // Creates link updated with phone number as parameter
+
             // document.getElementById("open_chat").innerHTML = `<p><a href='open_chat?phone=${number}' target='_blank' rel='noopener noreferr' id='open_chat'>Click to open new chat window</a></p>`
 
 
             // Sends request to create message log.
             const url = "{{ set_chat_url }}";
 
-
+            // Sends log name, phone number and 
+            // reCaptcha response.
             let data = {
                 file: logfile,
                 captcha: captchaResponse,
@@ -114,7 +116,8 @@
                     'Access-Control-Allow-Origin': '*',
                 })
             });
-            // Creates link updated with phone number as parameter
+            // fetch() returns the validated reCaptcha results.
+            // Creates link updated with phone number as parameter.
             fetch(request)
                 .then(response => response.json())
                 .then(data => {

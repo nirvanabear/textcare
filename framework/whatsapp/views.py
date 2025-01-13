@@ -14,10 +14,13 @@ import re
 
 import openai
 from django.db import transaction
-from .models import Conversation
+from .models import Conversation, ClientLog, ChatSession, ChatLog
 from .utils import send_message2, logger
 
-
+from django.utils.timezone import now
+from datetime import datetime
+import pytz
+from django.conf import settings
 
 
 # Initialise environment variables
@@ -163,9 +166,11 @@ def chat(request):
 
 
 def set_chat(request):
-    '''es contact number to the chat session'''
+    '''Adds contact number to the chat session.'''
     user_input = json.loads(request.body)
 
+    # Parses everything coming from javascript
+    # fetch() out of chat.html.
     make_str = str(user_input)
     filename = make_str[18:50]
     phone_num = make_str[-12:-2]
@@ -204,7 +209,7 @@ def set_chat(request):
         'request': request,
     }
 
-    # Use the render() response instead to view the context dict in Developer Tools
+    # Use the render() return instead to view the context dict in Developer Tools
     # return render(request, 'set_chat.html', context=context)
     return JsonResponse(recaptcha_data)
 
@@ -265,8 +270,40 @@ def send_message(request):
     print(message.body)
 
     message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + phone_num + "_log.txt"
-    message_w_id = "*** " + body
+    message_w_id = "Doctor: " + body
     add_first_line(message_log, message_w_id)
+
+    # Adds message to the chat log.
+    try:
+        with transaction.atomic():
+            client, create_client = ClientLog.objects.get_or_create(
+                phone_num=phone_num
+            )
+        open_session_set = ChatSession.objects.filter(open_session=True, client=client)
+        # Chooses the most recent open session.
+        latest = datetime.min.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+        session = None
+        # print("Min time: ")
+        # print(latest)
+        for item in open_session_set:
+            print("Open chat: ")
+            print(item)
+            if item.start_time > latest:
+                latest = item.start_time
+                session = item
+        print("~~~~~~~~~~~~HERE~~~~~~~~~~~")
+        # Adds new incoming message to the chat log.
+        message_w_id = "Doctor: " + body
+        new_message = ChatLog(message=message_w_id, session=session)
+        new_message.save()
+    except:
+        response = MessagingResponse()
+        response.message('Client database entry error.')
+        print('Client database entry error.')
+        return HttpResponse(str(response))
+
+
+
 
     context = {
         'message': message.body,
@@ -316,6 +353,41 @@ def end_session(request):
     triage_state = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + phone_num + "_state.txt"
     with open(triage_state, 'w+') as g:
             g.write('')
+            
+    #################
+    # Resets triage state in database.
+    try:
+        with transaction.atomic():
+            client, create_client = ClientLog.objects.get_or_create(
+                phone_num=phone_num
+            )
+        client.state = 20
+        client.save()
+        
+        # Chooses the most recent open session.
+        open_session_set = ChatSession.objects.filter(open_session=True, client=client)
+        latest = datetime.min.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+        session = None
+        # print("Min time: ")
+        # print(latest)
+        for item in open_session_set:
+            if item.start_time > latest:
+                latest = item.start_time
+                session = item
+        # Ends the session.
+        session.open_session = False
+        session.save()
+        print("Closing chat session: ")
+        print(session)
+    except:
+        response = MessagingResponse()
+        response.message('Client database entry error.')
+        print('Client database entry error.')
+        return HttpResponse(str(response))
+ 
+
+    #################
+
 
     # Resets transcript with TriageGPT.
     transcript = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + phone_num + "_transcript.txt"
@@ -369,7 +441,7 @@ def chat_switch(last_message):
     chatgpt_response = response.choices[0].message.content
     return chatgpt_response
 
-
+'''
 
 @csrf_exempt
 def reply(request):
@@ -497,6 +569,7 @@ def reply(request):
 
         return HttpResponse('')
 
+#############
         
         # Store the conversation in the database
         # try:
@@ -512,6 +585,8 @@ def reply(request):
         #     logger.error(f"Error storing conversation in database: {e}")
         #     return HttpResponse(status=500)
 
+#############
+
     except:
         with open(triage_state, 'w+') as g:
             g.write('')
@@ -521,3 +596,237 @@ def reply(request):
         response = MessagingResponse()
         response.message('TriageGPT error. Please try again.')
         return HttpResponse(str(response))
+
+'''
+
+
+########################################
+
+    # Loop the GPT three times
+        # Need a state.txt of the loop
+    # Then send to chat
+    # Post copy of the GPT triage to the bottom of the chat page
+
+
+    # print(f"Sending the ChatGPT response to this number: {whatsapp_number}")
+
+
+
+### Database version ###
+@csrf_exempt
+def reply(request):
+    # Handles incoming texts and coordinates communication with ChatGPT or live agent via a chat console.
+    whatsapp_number = request.POST.get('From').split("whatsapp:")[-1]
+    number = whatsapp_number[2:]
+
+    # Checks ClientLog for entry using the incoming phone number.
+    # Creates a new client entry if none exists.
+    try:
+        with transaction.atomic():
+            client, create_client = ClientLog.objects.get_or_create(
+                phone_num=number
+            )
+    except:
+        response = MessagingResponse()
+        response.message('Client database entry error.')
+        print('Client database entry error.')
+        return HttpResponse(str(response))
+
+    # Checks for existing open sessions to join. 
+    if client.state > 20:
+        open_session_set = ChatSession.objects.filter(open_session=True)
+        if len(open_session_set) == 0:
+            client.state = 20
+            client.save()
+        # Chooses the most recent open session.
+        latest = datetime.min.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+        session = None
+        print("Min time: ")
+        print(latest)
+        for item in open_session_set:
+            if item.start_time > latest:
+                latest = item.start_time
+                session = item
+    # Creates a new open session in none exist.
+    elif client.state == 20:
+        session = ChatSession(
+            client=client,
+            start_time=now()
+        )
+        session.save()
+    else:
+        response = MessagingResponse()
+        response.message('Client status error.')
+        print('Client status error.')
+        return HttpResponse(str(response))
+
+    ## Database ##
+    # If state is 20, create a new session and increment state.
+    # If 20 < state < 23, continue chatbot session.
+    # If > 22, send end message and increment.
+    # If > 23, bypass chatbot for live chat.
+    # Live chat view can reset for new session.
+
+    try:
+        # Extract the message from the incoming webhook request.
+        body = request.POST.get('Body', '')
+
+        # Adds new incoming message to the chat log.
+        message_w_id = "Patient: " + body
+        new_message = ChatLog(message=message_w_id, session=session)
+        new_message.save()
+
+        print("before message logged")
+        # Logs messages to text file for the incoming phone number.
+        message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_log.txt"    ## Deprecated ## 
+        # message_w_id = "--- " + body
+        # Adds message to message log for this phone number.
+        add_first_line(message_log, message_w_id)
+        print("after message logged")
+        
+        # Checks client state and bypasses GPT for live chat if needed.
+        if client.state > 23:
+            bypass_info = 'Bypass to the chat function!'
+            print(bypass_info)
+            return bypass_info
+
+        # Filter for all messages that match the session id.
+        # Add all previous messages to the TriageGPT conversation.
+        tscript_text = ''
+        session_messages = ChatLog.objects.filter(session_id=session.session_id)
+        for each in session_messages:
+            tscript_text += each.message
+            tscript_text += '\n'
+        # Transcript history to be provided to TriageGPT.
+        messages = [{"role": "user", "content": tscript_text}]        
+
+        # TriageGPT:
+        # Prompt engineering to initialize a triage nurse bot.
+        messages.append({"role": "system", "content": "You are a Triage Nurse. The incoming message is a conversation between a Patient and a Triage Nurse who is asking questions to determine the kind of health care the Patient needs. Ask two medical triage questions as the Triage Nurse to continue the conversation and get a better understanding of the situation."})
+
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo-0125",
+            messages=messages,
+            max_tokens=200,
+            n=1,
+            stop=None,
+            temperature=0.5
+            )
+
+        # The generated text from TriageGPT
+        chatgpt_response = response.choices[0].message.content
+
+        # Inserts welcome message for new session.
+        if client.state == 20:
+            chatgpt_response = "Welcome to TextCare! \n\n" + "Triage Nurse: " + chatgpt_response
+
+        # Adds TriageGPT response to ChatLog.
+        gpt_response = ChatLog(message=chatgpt_response, session=session)
+        gpt_response.save()
+
+        # Concluding message for patient going to live chat after three GPT prompts.
+        if client.state > 22:
+            # Link connects to the live chat functionality.
+            link = f"{env('CHAT_LINK')}"
+            link_info = "We'll get you to a doctor now. Please click on the link to proceed: " + link
+            chatgpt_response += "\n\n" + link_info
+            last_message = [{"role": "user", "content": tscript_text}]
+            last_response = chat_switch(last_message) + "\n\n" + link_info
+            # Increments state and sends response.
+            client.state += 1
+            client.save()            
+            send_message2(whatsapp_number, last_response)
+            return HttpResponse('')
+        else:
+            # Increments state and sends response.
+            client.state += 1
+            client.save()
+            send_message2(whatsapp_number, chatgpt_response)
+            return HttpResponse('')
+
+    except:
+        response = MessagingResponse()
+        response.message('TriageGPT error. Please try again.')
+        return HttpResponse(str(response))
+       
+
+
+        # Checks if triage state for this phone number exists.
+        # if os.path.exists(triage_state):
+        #     # print("exists!")
+        #     with open(triage_state, 'r+') as g:
+        #         # Reads current state.
+        #         # print("triage state opened")
+        #         g.seek(0, 0)
+        #         state_str = g.readline().strip()
+        #         if state_str == '':
+        #             state_str = '0'
+        #         # print("state_str: " + state_str)
+        #         state = int(state_str)
+        #         # print("state: #" + state_str + "#")
+        #         if state == 0:
+        #             welcome = "Welcome to TextCare! \n\n" + chatgpt_response
+        #             chatgpt_response = welcome
+        #         # Adds TriageGPTs output to the chat history.
+        #         if state <= 2:
+        #             triage_msg = "+++ " + chatgpt_response
+        #             add_first_line(message_log, triage_msg)
+        #         # If state is greater than 2, adds number to waitlist.
+        #         if state > 2:
+        #             # print("greater than")
+        #             with open(waitlist, 'a') as i:
+        #                 i.write(str(number))
+        #                 link = f"{env('CHAT_LINK')}"
+        #                 print(link)
+        #                 link_info = "We'll get you to a doctor now. Please click on the link to proceed: " + link
+        #                 chatgpt_response += "\n\n" + link_info
+        #             last_message = [{"role": "user", "content": body_w_tscript}]
+        #             last_response = chat_switch(last_message) + "\n\n" + link_info
+        #             send_message2(whatsapp_number, last_response)
+        #             return HttpResponse('')
+        #         # If state is less than 2, increments state.
+        #         else:      
+        #             g.seek(0, 0)
+        #             state += 1
+        #             g.write(str(state))
+        # else:
+        #     print("not exists!")
+        #     # Creates the state file if none. Sets state to 0.
+        #     with open(triage_state, 'w+') as g:
+        #         g.seek(0, 0)
+        #         g.write(str(0))
+        #     # Adds TriageGPT response to the chat log.
+        #     triage_msg = "+++ " + chatgpt_response
+        #     add_first_line(message_log, triage_msg)
+
+
+
+#############
+        
+        # Store the conversation in the database
+        # try:
+        #     with transaction.atomic():
+        #             conversation = Conversation.objects.create(
+        #                 sender=whatsapp_number,
+        #                 message=body,
+        #                 response=chatgpt_response
+        #             )
+        #             conversation.save()
+        #             logger.info(f"Conversation #{conversation.id} stored in database")
+        # except Exception as e:
+        #     logger.error(f"Error storing conversation in database: {e}")
+        #     return HttpResponse(status=500)
+
+#############
+
+    # except:
+    #     with open(triage_state, 'w+') as g:
+    #         g.write('')
+    #     with open(transcript, 'w+') as t:
+    #         t.write('')
+
+    #     response = MessagingResponse()
+    #     response.message('TriageGPT error. Please try again.')
+    #     return HttpResponse(str(response))
+
+

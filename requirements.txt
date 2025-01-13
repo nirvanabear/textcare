@@ -22,3 +22,4 @@ yarl==1.17.2
 
 openai
 psycopg2-binary
+pytz

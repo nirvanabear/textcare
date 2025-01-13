@@ -26,30 +26,24 @@
 <script>
     // Sets functionality after HTML is available. 
     document.addEventListener("DOMContentLoaded", function () {
-        // const form = document.querySelector("form");
-        // const usernameInput = document.getElementById("username");
-        // const emailInput = document.getElementById("email");
-
         var btn = document.getElementById("enter");
         const reset = document.getElementById("clear");
         const input_field = document.getElementById("user_input");
         const end = document.getElementById("end");
-        // const scroll = document.getElementById('output'); 
 
-        // Scroll to the bottom
-        // scroll.scrollTop = scroll.scrollHeight; 
     
         const url = window.location.search;
         const param_object = new URLSearchParams(url);
         const phone_num = param_object.get('phone');
 
+        // Old chat console code:
         // console.log(phone_num);
         // const console = document.getElementById("console_src");
         // console.src = `/static/T${phone_num}.txt`;
-
         // document.getElementById("output").innerHTML = 
         // var myText = `<script src=${phone_num}">
         //             </html>"`
+
         const logfile = '/static/message_logs/T' + phone_num + '_log.txt';
 
 
@@ -85,7 +79,6 @@
         // Triggers message-sending URL
         async function send_http() {
             const user_input = document.getElementById("user_input").value;
-            // document.getElementById("user_input").innerHTML = "";
             const url = "{{ send_message_url }}";
 
             let data = {
@@ -107,8 +100,6 @@
 
             fetch(request);
             reset.click();
-            // Clears field after sending message.
-            // document.getElementById("user_input").innerHTML = "";
         }
 
 
@@ -135,18 +126,14 @@
         }
         
         function change_end_color(location, addClass, elem) {
-            // document.getElementById("end").innerHTML = "#E69F00";
             elem.className += addClass;
             window.location.href = location;
         }
         
-        // setInterval();
-        // btn.addEventListener("click", passData);
+
         btn.addEventListener("click", send_http);
-        // btn.addEventListener("click", reset_page); 
         reset.addEventListener("click", reset_page); 
         end.addEventListener("click", end_session); 
-        // end.addEventListener("touchstart", change_end_color);      
         input_field.addEventListener("keypress", function(event) {
                 if (event.keyCode === 13) {
                     event.preventDefault();
@@ -180,9 +167,7 @@
             console.log(text);
         </script>
     </pre>
-    <!-- <div id="logbox" style="overflow: auto; height: 2px;">
 
-    </div> -->
 
 
 

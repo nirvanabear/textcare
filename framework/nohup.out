@@ -1,0 +1,11 @@
+INFO:environ.environ:/home/ubuntu/textcare/framework/whatsapp/.env doesn't exist - if you're not configuring your environment separately, create one.
+[16/Jan/2025 19:16:56] code 400, message Bad request version ('\x8d\x8eMThÖ\x06\x96Ái´\x1a¬AclZÄ\x8bw')
+[16/Jan/2025 19:16:56] You're accessing the development server over HTTPS, but it only supports HTTP.
+[16/Jan/2025 19:16:56] code 400, message Bad request version ('+¢º¢r!s\x053t"ª\x07\x03\x84:E\x10(c\x00"\x13\x01\x13\x03\x13\x02À+À/Ì©Ì¨À,À0À')
+[16/Jan/2025 19:16:56] You're accessing the development server over HTTPS, but it only supports HTTP.
+[16/Jan/2025 19:17:07] "GET /catalog/ HTTP/1.1" 200 1552
+WARNING:django.request:Not Found: /static/css/styles.css
+[16/Jan/2025 19:17:07] "GET /static/css/styles.css HTTP/1.1" 404 179
+WARNING:django.request:Not Found: /favicon.ico
+[16/Jan/2025 19:17:08] "GET /favicon.ico HTTP/1.1" 404 179
+INFO:environ.environ:/home/ubuntu/textcare/framework/whatsapp/.env doesn't exist - if you're not configuring your environment separately, create one.

@@ -15,3 +15,6 @@ framework/whatsapp/templates/hw6_pt2.html
 passwords.txt
 bfg-1.14.0.jar
 
+# Django secret key:
+.DJANGO_SECRET_KEY
+/home/ubuntu/textcare/framework/.DJANGO_SECRET_KEY

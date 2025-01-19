@@ -51,6 +51,9 @@ INSTALLED_APPS = [
     'whatsapp.apps.WhatsappConfig', 
 ]
 
+    # 'daphne',
+    # 'channels',
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     # 'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -148,7 +151,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # More efficient serving via Apache, rather than Django handling them.
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-ALLOWED_HOSTS=[f"{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}"]
+ALLOWED_HOSTS=[f"{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}", "localhost"]
 
 
 
@@ -158,7 +161,10 @@ ALLOWED_HOSTS=[f"{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}"]
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 # The absolute path to the directory where collectstatic will collect static files for deployment.
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = "/var/www/example.com/static"
+
 
 # The URL to use when referring to static files (where they will be served from)
 STATIC_URL = 'static/'

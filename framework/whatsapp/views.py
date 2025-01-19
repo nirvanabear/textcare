@@ -688,7 +688,7 @@ def reply(request):
         if client.state > 23:
             bypass_info = 'Bypass to the chat function!'
             print(bypass_info)
-            return bypass_info
+            return HttpResponse('')
 
         # Filter for all messages that match the session id.
         # Add all previous messages to the TriageGPT conversation.

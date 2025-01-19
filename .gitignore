@@ -31,3 +31,6 @@ config_and_boot/migration_deletes
 /home/ubuntu/django/framework/config/logging/nohup.out
 /home/ubuntu/django/framework/config/logging/ps.log
 /home/ubuntu/django/framework/nohup.out
+config_and_boot/stash/debug.log
+config_and_boot/stash/nohup.out
+config_and_boot/stash/ps.log

@@ -569,9 +569,95 @@ def reply(request):
        
 
 
+<<<<<<< HEAD
 def index(request):
     logger.debug("Log message changed.")
     root_path = str(settings.BASE_DIR)
+=======
+        # Checks if triage state for this phone number exists.
+        # if os.path.exists(triage_state):
+        #     # print("exists!")
+        #     with open(triage_state, 'r+') as g:
+        #         # Reads current state.
+        #         # print("triage state opened")
+        #         g.seek(0, 0)
+        #         state_str = g.readline().strip()
+        #         if state_str == '':
+        #             state_str = '0'
+        #         # print("state_str: " + state_str)
+        #         state = int(state_str)
+        #         # print("state: #" + state_str + "#")
+        #         if state == 0:
+        #             welcome = "Welcome to TextCare! \n\n" + chatgpt_response
+        #             chatgpt_response = welcome
+        #         # Adds TriageGPTs output to the chat history.
+        #         if state <= 2:
+        #             triage_msg = "+++ " + chatgpt_response
+        #             add_first_line(message_log, triage_msg)
+        #         # If state is greater than 2, adds number to waitlist.
+        #         if state > 2:
+        #             # print("greater than")
+        #             with open(waitlist, 'a') as i:
+        #                 i.write(str(number))
+        #                 link = f"{env('CHAT_LINK')}"
+        #                 print(link)
+        #                 link_info = "We'll get you to a doctor now. Please click on the link to proceed: " + link
+        #                 chatgpt_response += "\n\n" + link_info
+        #             last_message = [{"role": "user", "content": body_w_tscript}]
+        #             last_response = chat_switch(last_message) + "\n\n" + link_info
+        #             send_message2(whatsapp_number, last_response)
+        #             return HttpResponse('')
+        #         # If state is less than 2, increments state.
+        #         else:      
+        #             g.seek(0, 0)
+        #             state += 1
+        #             g.write(str(state))
+        # else:
+        #     print("not exists!")
+        #     # Creates the state file if none. Sets state to 0.
+        #     with open(triage_state, 'w+') as g:
+        #         g.seek(0, 0)
+        #         g.write(str(0))
+        #     # Adds TriageGPT response to the chat log.
+        #     triage_msg = "+++ " + chatgpt_response
+        #     add_first_line(message_log, triage_msg)
+
+
+
+#############
+        
+        # Store the conversation in the database
+        # try:
+        #     with transaction.atomic():
+        #             conversation = Conversation.objects.create(
+        #                 sender=whatsapp_number,
+        #                 message=body,
+        #                 response=chatgpt_response
+        #             )
+        #             conversation.save()
+        #             logger.info(f"Conversation #{conversation.id} stored in database")
+        # except Exception as e:
+        #     logger.error(f"Error storing conversation in database: {e}")
+        #     return HttpResponse(status=500)
+
+#############
+
+    # except:
+    #     with open(triage_state, 'w+') as g:
+    #         g.write('')
+    #     with open(transcript, 'w+') as t:
+    #         t.write('')
+
+    #     response = MessagingResponse()
+    #     response.message('TriageGPT error. Please try again.')
+    #     return HttpResponse(str(response))
+
+
+
+def index(request):
+    logger.debug("Index page loaded.")
+    root_path = settings.BASE_DIR
+>>>>>>> 3b38ea4 (CPU overload condition)
     logger.debug("Django root path: " + str(root_path))
     context = {
         'root_path': root_path,

@@ -58,7 +58,10 @@ whitenoise = "==6.8.2"
 yarl = "==1.17.2"
 "zope.interface" = "==7.2"
 gunicorn = "==20.1.*"
+<<<<<<< HEAD
 uvicorn = "*"
+=======
+>>>>>>> 3b38ea4 (CPU overload condition)
 
 [dev-packages]
 

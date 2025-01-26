@@ -1,7 +1,11 @@
 {
     "_meta": {
         "hash": {
+<<<<<<< HEAD
             "sha256": "7419e9a440a88e855fa51f0104e5011fc293a53281de48e79fd8f424533a8881"
+=======
+            "sha256": "26be1e547397de512d472330815be6bc40cec7daaa28779e92fcb18a3b526efd"
+>>>>>>> 3b38ea4 (CPU overload condition)
         },
         "pipfile-spec": 6,
         "requires": {
@@ -384,6 +388,7 @@
             "markers": "python_full_version >= '3.7.0'",
             "version": "==3.4.0"
         },
+<<<<<<< HEAD
         "click": {
             "hashes": [
                 "sha256:63c132bbbed01578a06712a2d1f497bb62d9c1c0d329b7903a866228027263b2",
@@ -392,6 +397,8 @@
             "markers": "python_version >= '3.7'",
             "version": "==8.1.8"
         },
+=======
+>>>>>>> 3b38ea4 (CPU overload condition)
         "constantly": {
             "hashes": [
                 "sha256:3fd9b4d1c3dc1ec9757f3c52aef7e53ad9323dbe39f51dfd4c43853b68dfa3f9",
@@ -570,6 +577,7 @@
             "markers": "python_version >= '3.8'",
             "version": "==1.5.0"
         },
+<<<<<<< HEAD
         "gunicorn": {
             "hashes": [
                 "sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e",
@@ -579,6 +587,8 @@
             "markers": "python_version >= '3.5'",
             "version": "==20.1.0"
         },
+=======
+>>>>>>> 3b38ea4 (CPU overload condition)
         "h11": {
             "hashes": [
                 "sha256:8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d",
@@ -1272,6 +1282,7 @@
             "markers": "python_version >= '3.8'",
             "version": "==2.2.3"
         },
+<<<<<<< HEAD
         "uvicorn": {
             "hashes": [
                 "sha256:023dc038422502fa28a09c7a30bf2b6991512da7dcdb8fd35fe57cfc154126f4",
@@ -1281,6 +1292,8 @@
             "markers": "python_version >= '3.9'",
             "version": "==0.34.0"
         },
+=======
+>>>>>>> 3b38ea4 (CPU overload condition)
         "whitenoise": {
             "hashes": [
                 "sha256:486bd7267a375fa9650b136daaec156ac572971acc8bf99add90817a530dd1d4",

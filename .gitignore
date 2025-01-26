@@ -22,6 +22,7 @@ bfg-1.15.0.jar
 /home/ubuntu/textcare/framework/.DJANGO_SECRET_KEY
 
 config_and_boot/staticfiles
+<<<<<<< HEAD
 config_and_boot/migration_deletes
 
 # Logs
@@ -34,3 +35,6 @@ config_and_boot/migration_deletes
 config_and_boot/stash/debug.log
 config_and_boot/stash/nohup.out
 config_and_boot/stash/ps.log
+=======
+config_and_boot/migration_deletes
+>>>>>>> 3b38ea4 (CPU overload condition)

@@ -38,3 +38,8 @@ config_and_boot/stash/ps.log
 =======
 config_and_boot/migration_deletes
 >>>>>>> 3b38ea4 (CPU overload condition)
+
+
+# Logs
+/home/ubuntu/django/config_and_boot/monitoring/ps.log
+/home/ubuntu/django/framework/config/logging/debug.log

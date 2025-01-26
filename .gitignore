@@ -15,6 +15,7 @@ framework/whatsapp/templates/hw6_pt2.html
 # BFG private data purge
 passwords.txt
 bfg-1.14.0.jar
+bfg-1.15.0.jar
 
 # Django secret key:
 .DJANGO_SECRET_KEY
@@ -26,3 +27,7 @@ config_and_boot/migration_deletes
 # Logs
 /home/ubuntu/django/config_and_boot/monitoring/ps.log
 /home/ubuntu/django/framework/config/logging/debug.log
+/home/ubuntu/django/framework/config/logging
+/home/ubuntu/django/framework/config/logging/nohup.out
+/home/ubuntu/django/framework/config/logging/ps.log
+/home/ubuntu/django/framework/nohup.out

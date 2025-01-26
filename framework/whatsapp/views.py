@@ -22,12 +22,17 @@ from datetime import datetime
 import pytz
 from django.conf import settings
 
+import logging
+from django.conf import settings
+
 
 # Initialise environment variables
 env = environ.Env()
 environ.Env.read_env()
 
 openai.api_key = f"{env('OPENAI_API_KEY')}"
+
+logger = logging.getLogger('django')
 
 
 def add_first_line(original, string):
@@ -619,6 +624,9 @@ def reply(request):
     whatsapp_number = request.POST.get('From').split("whatsapp:")[-1]
     number = whatsapp_number[2:]
 
+    logger.debug("Function start.")      
+
+    print("###########################")
     # Checks ClientLog for entry using the incoming phone number.
     # Creates a new client entry if none exists.
     try:
@@ -698,7 +706,9 @@ def reply(request):
             tscript_text += each.message
             tscript_text += '\n'
         # Transcript history to be provided to TriageGPT.
-        messages = [{"role": "user", "content": tscript_text}]        
+        messages = [{"role": "user", "content": tscript_text}]  
+
+        logger.debug("Setup for TriageGPT completed.")      
 
         # TriageGPT:
         # Prompt engineering to initialize a triage nurse bot.
@@ -712,6 +722,8 @@ def reply(request):
             stop=None,
             temperature=0.5
             )
+
+        logger.debug("TriageGPT call complete.")      
 
         # The generated text from TriageGPT
         chatgpt_response = response.choices[0].message.content
@@ -746,7 +758,7 @@ def reply(request):
 
     except:
         response = MessagingResponse()
-        response.message('TriageGPT error. Please try again.')
+        response.message('TriageGPT error. Please try again. :,(')
         return HttpResponse(str(response))
        
 
@@ -830,3 +842,12 @@ def reply(request):
     #     return HttpResponse(str(response))
 
 
+
+def index(request):
+    logger.debug("Index page loaded.")
+    root_path = settings.BASE_DIR
+    logger.debug("Django root path: " + str(root_path))
+    context = {
+        'root_path': root_path,
+    }
+    return render(request, "whatsapp/home.html", context=context)

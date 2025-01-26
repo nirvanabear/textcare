@@ -4,6 +4,7 @@
 # Database
 *.sqlite3
 whole.json
+dumpfile.json
 
 # Environment variables
 .env
@@ -18,3 +19,6 @@ bfg-1.14.0.jar
 # Django secret key:
 .DJANGO_SECRET_KEY
 /home/ubuntu/textcare/framework/.DJANGO_SECRET_KEY
+
+config_and_boot/staticfiles
+config_and_boot/migration_deletes

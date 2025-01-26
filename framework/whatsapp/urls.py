@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
@@ -8,4 +8,5 @@ urlpatterns = [
     path('set_chat/', views.set_chat, name='set_chat'),
     path('end_session/', views.end_session, name='end_session'),
     # path('chatgpt/', views.reply, name='chatgpt'),
+    # path("", views.index, name="index"), 
 ]

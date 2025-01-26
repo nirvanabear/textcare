@@ -162,6 +162,8 @@ STATICFILES_DIRS = [
 
 ALLOWED_HOSTS=[f"{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}", f"{env('EC2_HOST_NAME')}","localhost"]
 
+CSRF_TRUSTED_ORIGINS = ["https://example.com",]
+
 
 # Logging
 # https://docs.djangoproject.com/en/5.1/topics/logging/#top
@@ -184,6 +186,8 @@ LOGGING = {
         },
     },
 }
+
+
 
 
 

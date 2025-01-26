@@ -24,7 +24,8 @@ from whatsapp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('catalog/', include('catalog.urls')),
-    path('', RedirectView.as_view(url='catalog/', permanent=True)), # redirects root URL to /catalog/
+    # path('', RedirectView.as_view(url='catalog/', permanent=True)), # redirects root URL to /catalog/
+    path("", views.index, name="index"),
     # path('message', views.message), # TextCare incoming endpoint
     path('message', views.reply), # ChatGPT incoming endpoint
     path('whatsapp/', include('whatsapp.urls')),

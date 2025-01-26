@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import environ
+import logging
 
 
 # Initialise environment variables
@@ -97,7 +98,7 @@ DATABASES = {
     # },
     "default": {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db_v1',
+        'NAME': 'db_v2',
         'USER': f"{env('DB_USER')}",
         'PASSWORD': f"{env('DB_PASSWORD')}",
         'HOST': 'localhost',
@@ -137,21 +138,48 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = 'static/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/5.1/howto/static-files/
+STATIC_URL = 'static/'
 
 # Specifies directory where static files of the application are located:
 # More efficient serving via Apache, rather than Django handling them.
-STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+# STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
-ALLOWED_HOSTS=[f"{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}", "localhost"]
+# Serving static files via Nginx, not Django.
+STATIC_ROOT = "/var/www/example.com/static"
+# STATIC_ROOT = "/home/ubuntu/django/framework/staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+ALLOWED_HOSTS=[f"{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}", f"{env('EC2_HOST_NAME')}","localhost"]
+
+
+# Logging
+# https://docs.djangoproject.com/en/5.1/topics/logging/#top
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": "/home/ubuntu/django/framework/config/logging/debug.log",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}
 
 
 
@@ -163,11 +191,9 @@ ALLOWED_HOSTS=[f"{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}", "localhost"]
 # The absolute path to the directory where collectstatic will collect static files for deployment.
 
 # STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATIC_ROOT = "/var/www/example.com/static"
 
 
 # The URL to use when referring to static files (where they will be served from)
-STATIC_URL = 'static/'
 
 # Static file serving.
 # https://whitenoise.readthedocs.io/en/stable/django.html#add-compression-and-caching-support

@@ -9,3 +9,17 @@ WARNING:django.request:Not Found: /static/css/styles.css
 WARNING:django.request:Not Found: /favicon.ico
 [16/Jan/2025 19:17:08] "GET /favicon.ico HTTP/1.1" 404 179
 INFO:environ.environ:/home/ubuntu/textcare/framework/whatsapp/.env doesn't exist - if you're not configuring your environment separately, create one.
+INFO:environ.environ:/home/ubuntu/django/framework/whatsapp/.env doesn't exist - if you're not configuring your environment separately, create one.
+WARNING:django.request:Not Found: /myapp/
+[18/Jan/2025 22:52:35] "GET /myapp/ HTTP/1.1" 404 179
+[18/Jan/2025 22:53:07] "GET /catalog/ HTTP/1.1" 200 1672
+INFO:environ.environ:/home/ubuntu/django/framework/whatsapp/.env doesn't exist - if you're not configuring your environment separately, create one.
+[18/Jan/2025 23:01:24] "GET /catalog/ HTTP/1.1" 200 1672
+WARNING:django.request:Not Found: /static/css/styles.css
+[18/Jan/2025 23:01:25] "GET /static/css/styles.css HTTP/1.1" 404 179
+WARNING:django.request:Not Found: /static/js/greenlight.js
+[18/Jan/2025 23:01:25] "GET /static/js/greenlight.js HTTP/1.1" 404 179
+WARNING:django.request:Not Found: /static/css/styles.css
+[18/Jan/2025 23:01:27] "GET /static/css/styles.css HTTP/1.1" 404 179
+WARNING:django.request:Not Found: /static/js/greenlight.js
+[18/Jan/2025 23:01:27] "GET /static/js/greenlight.js HTTP/1.1" 404 179

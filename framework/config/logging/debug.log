@@ -127,3 +127,75 @@ Not Found: /.env
 Index page loaded.
 Index page loaded.
 Django root path: /home/ubuntu/django/framework
+Not Found: /robots.txt
+Exception while resolving variable 'is_paginated' in template 'catalog/author_detail.html'.
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/share/virtualenvs/django-QPJBAfdX/lib/python3.12/site-packages/django/template/base.py", line 883, in _resolve_lookup
+    current = current[bit]
+              ~~~~~~~^^^^^
+  File "/home/ubuntu/.local/share/virtualenvs/django-QPJBAfdX/lib/python3.12/site-packages/django/template/context.py", line 85, in __getitem__
+    raise KeyError(key)
+KeyError: 'is_paginated'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/share/virtualenvs/django-QPJBAfdX/lib/python3.12/site-packages/django/template/base.py", line 889, in _resolve_lookup
+    if isinstance(current, BaseContext) and getattr(
+                                            ^^^^^^^^
+AttributeError: type object 'RequestContext' has no attribute 'is_paginated'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/share/virtualenvs/django-QPJBAfdX/lib/python3.12/site-packages/django/template/base.py", line 899, in _resolve_lookup
+    current = current[int(bit)]
+                      ^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'is_paginated'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/share/virtualenvs/django-QPJBAfdX/lib/python3.12/site-packages/django/template/base.py", line 906, in _resolve_lookup
+    raise VariableDoesNotExist(
+django.template.base.VariableDoesNotExist: Failed lookup for key [is_paginated] in [{'True': True, 'False': False, 'None': None}, {'csrf_token': <SimpleLazyObject: <function csrf.<locals>._get_val at 0x70612570f240>>, 'request': <WSGIRequest: GET '/catalog/author/4'>, 'user': <SimpleLazyObject: <function AuthenticationMiddleware.process_request.<locals>.<lambda> at 0x7061273eb100>>, 'perms': PermWrapper(<SimpleLazyObject: <function AuthenticationMiddleware.process_request.<locals>.<lambda> at 0x7061273eb100>>), 'messages': <FallbackStorage: request=<WSGIRequest: GET '/catalog/author/4'>>, 'DEFAULT_MESSAGE_LEVELS': {'DEBUG': 10, 'INFO': 20, 'SUCCESS': 25, 'WARNING': 30, 'ERROR': 40}}, {}, {'object': <Author: Bahaullah, Husayn>, 'author': <Author: Bahaullah, Husayn>, 'view': <catalog.views.AuthorDetailView object at 0x706125b0aab0>}, {'block': <Block Node: pagination. Contents: [<TextNode: '\n            '>, <IfNode>, <TextNode: '\n          '>]>}]
+Index page loaded.
+Django root path: /home/ubuntu/django/framework
+Not Found: /ads.txt
+Exception while resolving variable 'is_paginated' in template 'catalog/author_detail.html'.
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/share/virtualenvs/django-QPJBAfdX/lib/python3.12/site-packages/django/template/base.py", line 883, in _resolve_lookup
+    current = current[bit]
+              ~~~~~~~^^^^^
+  File "/home/ubuntu/.local/share/virtualenvs/django-QPJBAfdX/lib/python3.12/site-packages/django/template/context.py", line 85, in __getitem__
+    raise KeyError(key)
+KeyError: 'is_paginated'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/share/virtualenvs/django-QPJBAfdX/lib/python3.12/site-packages/django/template/base.py", line 889, in _resolve_lookup
+    if isinstance(current, BaseContext) and getattr(
+                                            ^^^^^^^^
+AttributeError: type object 'RequestContext' has no attribute 'is_paginated'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/share/virtualenvs/django-QPJBAfdX/lib/python3.12/site-packages/django/template/base.py", line 899, in _resolve_lookup
+    current = current[int(bit)]
+                      ^^^^^^^^
+ValueError: invalid literal for int() with base 10: 'is_paginated'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/ubuntu/.local/share/virtualenvs/django-QPJBAfdX/lib/python3.12/site-packages/django/template/base.py", line 906, in _resolve_lookup
+    raise VariableDoesNotExist(
+django.template.base.VariableDoesNotExist: Failed lookup for key [is_paginated] in [{'True': True, 'False': False, 'None': None}, {'csrf_token': <SimpleLazyObject: <function csrf.<locals>._get_val at 0x706125beb740>>, 'request': <WSGIRequest: GET '/catalog/author/2'>, 'user': <SimpleLazyObject: <function AuthenticationMiddleware.process_request.<locals>.<lambda> at 0x706125700ae0>>, 'perms': PermWrapper(<SimpleLazyObject: <function AuthenticationMiddleware.process_request.<locals>.<lambda> at 0x706125700ae0>>), 'messages': <FallbackStorage: request=<WSGIRequest: GET '/catalog/author/2'>>, 'DEFAULT_MESSAGE_LEVELS': {'DEBUG': 10, 'INFO': 20, 'SUCCESS': 25, 'WARNING': 30, 'ERROR': 40}}, {}, {'object': <Author: Weis, Margaret>, 'author': <Author: Weis, Margaret>, 'view': <catalog.views.AuthorDetailView object at 0x706125b3a930>}, {'block': <Block Node: pagination. Contents: [<TextNode: '\n            '>, <IfNode>, <TextNode: '\n          '>]>}]
+Not Found: /robots.txt
+Not Found: /owa/auth/logon.aspx
+Index page loaded.
+Django root path: /home/ubuntu/django/framework
+Index page loaded.
+Django root path: /home/ubuntu/django/framework

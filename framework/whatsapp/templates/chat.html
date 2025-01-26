@@ -84,7 +84,7 @@
         // Triggers message-sending URL
         async function send_http() {
             var number = document.getElementById("user_input").value;
-            var logfile = "/static/message_logs/T" + number + "_log.txt";
+            var logfile = "/whatsapp/message_logs/T" + number + "_log.txt";
             var call_number = "whatsapp:+1" + number;
             const captchaResponse = grecaptcha.getResponse();
 

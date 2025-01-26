@@ -22,3 +22,7 @@ bfg-1.14.0.jar
 
 config_and_boot/staticfiles
 config_and_boot/migration_deletes
+
+# Logs
+/home/ubuntu/django/config_and_boot/monitoring/ps.log
+/home/ubuntu/django/framework/config/logging/debug.log

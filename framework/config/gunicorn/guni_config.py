@@ -1,4 +1,4 @@
-"""Gunicorn *development* config file"""
+"""Gunicorn config file"""
 
 # Django WSGI application path in pattern MODULE_NAME:VARIABLE_NAME
 # wsgi_app = "TextCare.wsgi:application"
@@ -11,7 +11,7 @@ loglevel = "debug"
 # Restart workers when code changes (development only!)
 # reload = True
 # Write access and error info to /var/log
-accesslog = errorlog = "/var/log/gunicorn/dev.log"
+accesslog = errorlog = "/var/log/gunicorn/access_error.log"
 # Redirect stdout/stderr to log file
 capture_output = True
 # PID file so you can easily fetch process ID

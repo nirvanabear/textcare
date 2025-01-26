@@ -38,13 +38,13 @@ logger = logging.getLogger('django')
 def add_first_line(original, string):
     '''Adds a new line to a text file as the first line.'''
     with open(original,'a+', encoding='utf-8') as f:
-        with open("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt",'a', encoding='utf-8') as f2:
+        with open(str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "new.txt",'a', encoding='utf-8') as f2:
             f2.write(string)
             f2.write("\n")
             f.seek(0, 0)
             f2.write(f.read())
     os.remove(original)
-    os.rename("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt", original)
+    os.rename(str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "new.txt", original)
 
 
 
@@ -131,14 +131,14 @@ def message(request):
     number = user[11:]
     try:
     
-        message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_log.txt"
+        message_log = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + number + "_log.txt"
         message_w_id = "--- " + message
         add_first_line(message_log, message_w_id)
     
 
-        waitlist = "/home/ubuntu/textcare/framework/staticfiles/message_logs/waitlist.txt"
-        triage_path = "/home/ubuntu/textcare/framework/staticfiles/message_logs/triage_path.txt"
-        triage_state = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_state.txt"
+        waitlist = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "waitlist.txt"
+        triage_path = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "triage_path.txt"
+        triage_state = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + number + "_state.txt"
 
         question = triage(number, message, waitlist, triage_path, triage_state)
 
@@ -173,14 +173,21 @@ def chat(request):
 def set_chat(request):
     '''Adds contact number to the chat session.'''
     user_input = json.loads(request.body)
-
+    logger.debug(type(user_input))
     # Parses everything coming from javascript
     # fetch() out of chat.html.
     make_str = str(user_input)
-    filename = make_str[18:50]
+    filename = make_str[33:52]
     phone_num = make_str[-12:-2]
     token_v0 = make_str[65:]
     token = token_v0[:-22]
+
+    # request_dict = json.loads(str(user_input))
+    filename = user_input["file"]
+    phone_num = user_input["to"]
+    token = user_input["captcha"]
+
+    logger.debug("Request body: " + str(user_input))
 
     recaptcha_url = " https://www.google.com/recaptcha/api/siteverify"
     param_dict = {
@@ -190,16 +197,19 @@ def set_chat(request):
     recaptcha_resp = requests.get(url=recaptcha_url, params=param_dict)
     recaptcha_data = recaptcha_resp.json()
 
+    logger.debug("~~~~~~~ reCaptcha Response: ~~~~~~~")
     key_values = []
     for key, value in recaptcha_data.items():
         key_values.append(key)
         key_values.append(value)
+        logger.debug(str(key) + ": " + str(value))
     key_values = str(key_values)
     # recaptcha_str = str(recaptcha_data)
     # recaptcha_dict = json.loads(recaptcha_str)
     
 
-    message_log = "/home/ubuntu/textcare/framework/staticfiles/" + filename
+    message_log = str(settings.BASE_DIR) + filename
+    logger.debug("message log: " + message_log)
     add_first_line(message_log, "~~~~~~~~~~~~~~~~~~~~")
 
     context = {
@@ -274,7 +284,7 @@ def send_message(request):
     )
     print(message.body)
 
-    message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + phone_num + "_log.txt"
+    message_log = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + phone_num + "_log.txt"
     message_w_id = "Doctor: " + body
     add_first_line(message_log, message_w_id)
 
@@ -334,11 +344,11 @@ def end_session(request):
 
     # Removes the phone number from the waitlist, which allows
     # the triage session to restart.
-    waitlist = "/home/ubuntu/textcare/framework/staticfiles/message_logs/waitlist.txt"
+    waitlist = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "waitlist.txt"
     # add_first_line(message_log, "~~~~~~~~~~~~~~~~~~~~")
     match_list = []
     with open(waitlist, 'r+') as f:
-        with open("/home/ubuntu/textcare/framework/staticfiles/message_logs/new2.txt",'a') as f2:
+        with open(str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "new2.txt",'a') as f2:
 
             f.seek(0, 0)
             num_list = f.readlines()
@@ -352,10 +362,10 @@ def end_session(request):
             for each in num_list:
                 f2.write(each)
     os.remove(waitlist)
-    os.rename("/home/ubuntu/textcare/framework/staticfiles/message_logs/new2.txt", waitlist)
+    os.rename(str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "new2.txt", waitlist)
 
     # Resets the triage state.
-    triage_state = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + phone_num + "_state.txt"
+    triage_state = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + phone_num + "_state.txt"
     with open(triage_state, 'w+') as g:
             g.write('')
             
@@ -395,7 +405,7 @@ def end_session(request):
 
 
     # Resets transcript with TriageGPT.
-    transcript = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + phone_num + "_transcript.txt"
+    transcript = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + phone_num + "_transcript.txt"
     with open(transcript, 'w+') as t:
             t.write('')
 
@@ -410,13 +420,13 @@ def end_session(request):
 
 
     # with open(original,'a+') as f:
-    #     with open("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt",'a') as f2:
+    #     with open(str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "new.txt",'a') as f2:
     #         f2.write(string)
     #         f2.write("\n")
     #         f.seek(0, 0)
     #         f2.write(f.read())
     # os.remove(original)
-    # os.rename("/home/ubuntu/textcare/framework/staticfiles/message_logs/new.txt", original)
+    # os.rename(str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "new.txt", original)
 
 
 
@@ -457,9 +467,9 @@ def reply(request):
     whatsapp_number = request.POST.get('From').split("whatsapp:")[-1]
     print(f"Sending the ChatGPT response to this number: {whatsapp_number}")
     number = whatsapp_number[2:]
-    triage_state = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_state.txt"
+    triage_state = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + number + "_state.txt"
     print("triage state file: " + triage_state)
-    transcript = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_transcript.txt"
+    transcript = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + number + "_transcript.txt"
     try:
         # Extract the message from the incoming webhook request.
         body = request.POST.get('Body', '')
@@ -481,13 +491,13 @@ def reply(request):
         messages = [{"role": "user", "content": body_w_tscript}]        
 
         # Log of messages for the incoming phone number.
-        message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_log.txt"
+        message_log = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + number + "_log.txt"
         message_w_id = "--- " + body
         # Adds message to message log for this phone number.
         add_first_line(message_log, message_w_id)
 
         # Checks waitlist and if found, bypasses GPT for the live chat.
-        waitlist = "/home/ubuntu/textcare/framework/staticfiles/message_logs/waitlist.txt"
+        waitlist = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "waitlist.txt"
         with open(waitlist,'r') as f:
             for line in f:
                 # .strip() removes \n for match purposes.
@@ -517,7 +527,7 @@ def reply(request):
         print("just after chatgpt response")
         print(chatgpt_response)
 
-        # transcript = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_transcript.txt"
+        # transcript = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + number + "_transcript.txt"
         with open(transcript, 'a+', encoding='utf-8') as t:
             t.write("Patient: " + body + "\n")
             t.write(chatgpt_response + "\n")
@@ -686,7 +696,7 @@ def reply(request):
 
         print("before message logged")
         # Logs messages to text file for the incoming phone number.
-        message_log = "/home/ubuntu/textcare/framework/staticfiles/message_logs/T" + number + "_log.txt"    ## Deprecated ## 
+        message_log = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + number + "_log.txt"    ## Deprecated ## 
         # message_w_id = "--- " + body
         # Adds message to message log for this phone number.
         add_first_line(message_log, message_w_id)
@@ -844,8 +854,8 @@ def reply(request):
 
 
 def index(request):
-    logger.debug("Index page loaded.")
-    root_path = settings.BASE_DIR
+    logger.debug("Log message changed.")
+    root_path = str(settings.BASE_DIR)
     logger.debug("Django root path: " + str(root_path))
     context = {
         'root_path': root_path,

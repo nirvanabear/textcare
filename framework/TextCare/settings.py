@@ -153,7 +153,7 @@ STATIC_URL = 'static/'
 
 
 # Serving static files via Nginx, not Django.
-STATIC_ROOT = "/var/www/example.com/static"
+STATIC_ROOT = f"/var/www/{env('EC2_DNS_NAME')}/static"
 # STATIC_ROOT = "/home/ubuntu/django/framework/staticfiles"
 STATICFILES_DIRS = [
     "/home/ubuntu/django/framework/static",
@@ -161,9 +161,9 @@ STATICFILES_DIRS = [
     "/home/ubuntu/django/framework/whatsapp/static",
 ]
 
-ALLOWED_HOSTS=[f"{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}", f"{env('EC2_HOST_NAME')}","localhost"]
+ALLOWED_HOSTS=[f".{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}", f"{env('EC2_HOST_NAME')}","localhost"]
 
-CSRF_TRUSTED_ORIGINS = ["https://example.com",]
+CSRF_TRUSTED_ORIGINS = [f"https://{env('EC2_DNS_NAME')}",]
 
 
 # Logging

@@ -48,3 +48,4 @@ config_and_boot/migration_deletes
 framework/config/logging/debug.log
 framework/config/logging/ps.log
 framework/config/logging/nohup.out
+framework/whatsapp/message_logs/*

@@ -150,7 +150,7 @@ STATIC_URL = 'static/'
 # Specifies directory where static files of the application are located:
 # More efficient serving via Apache, rather than Django handling them.
 # STATIC_ROOT = os.path.join(BASE_DIR, "static/")
-<<<<<<< HEAD
+
 
 # Serving static files via Nginx, not Django.
 STATIC_ROOT = "/var/www/example.com/static"
@@ -188,43 +188,6 @@ LOGGING = {
     },
 }
 
-
-=======
-
-# Serving static files via Nginx, not Django.
-STATIC_ROOT = "/var/www/example.com/static"
-# STATIC_ROOT = "/home/ubuntu/django/framework/staticfiles"
-STATICFILES_DIRS = [
-    "/home/ubuntu/django/framework/static",
-    "/home/ubuntu/django/framework/catalog/static",
-    "/home/ubuntu/django/framework/whatsapp/static",
-]
-
-ALLOWED_HOSTS=[f"{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}", f"{env('EC2_HOST_NAME')}","localhost"]
-
-
-# Logging
-# https://docs.djangoproject.com/en/5.1/topics/logging/#top
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": "/home/ubuntu/django/framework/config/logging/debug.log",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["file"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-    },
-}
->>>>>>> 3b38ea4 (CPU overload condition)
 
 
 

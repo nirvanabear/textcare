@@ -447,32 +447,35 @@ def reply(request):
         return HttpResponse(str(response))
 
     # Checks for existing open sessions to join. 
-    if client.state > 20:
-        open_session_set = ChatSession.objects.filter(open_session=True)
-        if len(open_session_set) == 0:
-            client.state = 20
-            client.save()
-        # Chooses the most recent open session.
-        latest = datetime.min.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
-        session = None
-        print("Min time: ")
-        print(latest)
-        for item in open_session_set:
-            if item.start_time > latest:
-                latest = item.start_time
-                session = item
-    # Creates a new open session in none exist.
-    elif client.state == 20:
-        session = ChatSession(
-            client=client,
-            start_time=now()
-        )
-        session.save()
-    else:
+    try:
+        if client.state > 20:
+            open_session_set = ChatSession.objects.filter(open_session=True)
+            if len(open_session_set) == 0:
+                client.state = 20
+                client.save()
+            # Chooses the most recent open session.
+            latest = datetime.min.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+            session = None
+            print("Min time: ")
+            print(latest)
+            for item in open_session_set:
+                if item.start_time > latest:
+                    latest = item.start_time
+                    session = item
+        # Creates a new open session in none exist.
+        elif client.state == 20:
+            session = ChatSession(
+                client=client,
+                start_time=now()
+            )
+            session.save()
+    except:
         response = MessagingResponse()
         response.message('Client status error.')
         print('Client status error.')
         return HttpResponse(str(response))
+
+    logger.debug("Database entry and status checked.") 
 
     ## Database ##
     # If state is 20, create a new session and increment state.
@@ -490,18 +493,19 @@ def reply(request):
         new_message = ChatLog(message=message_w_id, session=session)
         new_message.save()
 
-        print("before message logged")
+
+        logger.debug("before message logged")
         # Logs messages to text file for the incoming phone number.
         message_log = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + number + "_log.txt"    ## Deprecated ## 
         # message_w_id = "--- " + body
         # Adds message to message log for this phone number.
         add_first_line(message_log, message_w_id)
-        print("after message logged")
+        logger.debug("after message logged")
         
         # Checks client state and bypasses GPT for live chat if needed.
         if client.state > 23:
-            bypass_info = 'Bypass to the chat function!'
-            print(bypass_info)
+            bypass_info = f"Patient state is  {client.state}. Bypass to the chat function!"
+            logger.debug(bypass_info)
             return HttpResponse('')
 
         # Filter for all messages that match the session id.

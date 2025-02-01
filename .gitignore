@@ -1,5 +1,6 @@
 # Text backup files
 *.bak
+*.pyc
 
 # Database
 *.sqlite3
@@ -15,10 +16,18 @@ framework/whatsapp/templates/hw6_pt2.html
 # BFG private data purge
 passwords.txt
 bfg-1.14.0.jar
+bfg-1.15.0.jar
 
 # Django secret key:
 .DJANGO_SECRET_KEY
 /home/ubuntu/textcare/framework/.DJANGO_SECRET_KEY
 
+# Config
 config_and_boot/staticfiles
 config_and_boot/migration_deletes
+
+# Logs
+framework/config/logging/debug.log
+framework/config/logging/nohup.out
+framework/config/logging/ps.log
+framework/whatsapp/message_logs/*

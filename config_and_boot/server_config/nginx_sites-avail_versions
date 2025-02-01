@@ -3,8 +3,8 @@
 
 
 server_tokens               off;
-access_log                  /var/log/nginx/example.access.log;
-error_log                   /var/log/nginx/example.error.log;
+access_log                  /var/log/nginx/blackteablues.access.log;
+error_log                   /var/log/nginx/blackteablues.error.log;
 
 
 server {

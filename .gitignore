@@ -51,3 +51,4 @@ framework/config/logging/nohup.out
 framework/whatsapp/message_logs/*
 framework/config/gunicorn/__pycache__/guni_config.cpython-312.pyc
 framework/config/gunicorn/__pycache__/dev.cpython-312.pyc
+

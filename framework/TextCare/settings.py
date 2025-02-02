@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'catalog.apps.CatalogConfig', 
-    'whatsapp.apps.WhatsappConfig', 
+    'whatsapp.apps.WhatsappConfig',
+    'chat.apps.ChatConfig',
 ]
 
     # 'daphne',

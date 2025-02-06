@@ -1,5 +1,10 @@
 """Gunicorn config file"""
 
+# import os
+
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TextCare.settings')
+# raw_env = ['DJANGO_SETTINGS_MODULE=TextCare.settings']
+
 # Django WSGI application path in pattern MODULE_NAME:VARIABLE_NAME
 # wsgi_app = "TextCare.wsgi:application"
 # The granularity of Error log outputs

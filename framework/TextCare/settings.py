@@ -51,10 +51,10 @@ INSTALLED_APPS = [
     'catalog.apps.CatalogConfig', 
     'whatsapp.apps.WhatsappConfig',
     'chat.apps.ChatConfig',
+    'channels',
 ]
 
-    # 'daphne',
-    # 'channels',
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -87,7 +87,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'TextCare.wsgi.application'
-
+ASGI_APPLICATION = 'TextCare.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -107,6 +107,17 @@ DATABASES = {
     },    
 }
 
+# Channels install guide:
+# https://testdriven.io/blog/django-channels/
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -160,6 +171,7 @@ STATICFILES_DIRS = [
     "/home/ubuntu/django/framework/static",
     "/home/ubuntu/django/framework/catalog/static",
     "/home/ubuntu/django/framework/whatsapp/static",
+    "/home/ubuntu/django/framework/chat/static",
 ]
 
 ALLOWED_HOSTS=[f".{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}", f"{env('EC2_HOST_NAME')}","localhost"]

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'catalog.apps.CatalogConfig', 
     'whatsapp.apps.WhatsappConfig',
     'chat.apps.ChatConfig',
+    'channels',
 ]
 
     # 'daphne',
@@ -87,7 +88,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'TextCare.wsgi.application'
-
+ASGI_APPLICATION = 'TextCare.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

@@ -1,11 +1,7 @@
 {
     "_meta": {
         "hash": {
-<<<<<<< HEAD
-            "sha256": "7419e9a440a88e855fa51f0104e5011fc293a53281de48e79fd8f424533a8881"
-=======
-            "sha256": "26be1e547397de512d472330815be6bc40cec7daaa28779e92fcb18a3b526efd"
->>>>>>> 3b38ea4 (CPU overload condition)
+            "sha256": "856ad08e4630ae8623c3f88d5ca8c76823ee2edb9ecee3e0c857bcb0797dfe6e"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -269,12 +265,12 @@
         },
         "channels": {
             "hashes": [
-                "sha256:6b75bc8d6888fb7236e7e7bf1948520b72d296ad08216a242fc56b1db0ffde1a",
-                "sha256:d9e707487431ba5dbce9af982970dab3b0efd786580fadb99e45dca5e39fdd59"
+                "sha256:0ff0422b4224d10efac76e451575517f155fe7c97d369b5973b116f22eeaf86c",
+                "sha256:fdd9a94987a23d8d7ebd97498ed8b8cc83163f37e53fc6c85098aba7a3bb8b75"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.8'",
-            "version": "==4.2.0"
+            "markers": "python_version >= '3.6'",
+            "version": "==3.0.4"
         },
         "charset-normalizer": {
             "hashes": [
@@ -388,7 +384,6 @@
             "markers": "python_full_version >= '3.7.0'",
             "version": "==3.4.0"
         },
-<<<<<<< HEAD
         "click": {
             "hashes": [
                 "sha256:63c132bbbed01578a06712a2d1f497bb62d9c1c0d329b7903a866228027263b2",
@@ -397,8 +392,6 @@
             "markers": "python_version >= '3.7'",
             "version": "==8.1.8"
         },
-=======
->>>>>>> 3b38ea4 (CPU overload condition)
         "constantly": {
             "hashes": [
                 "sha256:3fd9b4d1c3dc1ec9757f3c52aef7e53ad9323dbe39f51dfd4c43853b68dfa3f9",
@@ -444,12 +437,11 @@
         },
         "daphne": {
             "hashes": [
-                "sha256:618d1322bb4d875342b99dd2a10da2d9aae7ee3645f765965fdc1e658ea5290a",
-                "sha256:fcbcace38eb86624ae247c7ffdc8ac12f155d7d19eafac4247381896d6f33761"
+                "sha256:76ffae916ba3aa66b46996c14fa713e46004788167a4873d647544e750e0e99f",
+                "sha256:a9af943c79717bc52fe64a3c236ae5d3adccc8b5be19c881b442d2c3db233393"
             ],
-            "index": "pypi",
-            "markers": "python_version >= '3.8'",
-            "version": "==4.1.2"
+            "markers": "python_version >= '3.6'",
+            "version": "==3.0.2"
         },
         "distro": {
             "hashes": [
@@ -577,7 +569,6 @@
             "markers": "python_version >= '3.8'",
             "version": "==1.5.0"
         },
-<<<<<<< HEAD
         "gunicorn": {
             "hashes": [
                 "sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e",
@@ -587,8 +578,6 @@
             "markers": "python_version >= '3.5'",
             "version": "==20.1.0"
         },
-=======
->>>>>>> 3b38ea4 (CPU overload condition)
         "h11": {
             "hashes": [
                 "sha256:8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d",
@@ -1282,7 +1271,6 @@
             "markers": "python_version >= '3.8'",
             "version": "==2.2.3"
         },
-<<<<<<< HEAD
         "uvicorn": {
             "hashes": [
                 "sha256:023dc038422502fa28a09c7a30bf2b6991512da7dcdb8fd35fe57cfc154126f4",
@@ -1292,8 +1280,6 @@
             "markers": "python_version >= '3.9'",
             "version": "==0.34.0"
         },
-=======
->>>>>>> 3b38ea4 (CPU overload condition)
         "whitenoise": {
             "hashes": [
                 "sha256:486bd7267a375fa9650b136daaec156ac572971acc8bf99add90817a530dd1d4",

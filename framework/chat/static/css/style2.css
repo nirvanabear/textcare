@@ -1,0 +1,27 @@
+.sidebar-nav {
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+}
+
+body {
+  color: #E69F00;
+  /* background-color: rgb(22, 22, 22); */
+  background-color: #333333;
+}
+
+textarea { 
+/* color: rgb(154, 220, 251); */
+color: #0072B2;
+/* background-color:rgb(11, 11, 11); */
+background-color: #F5F5F5;
+}
+
+input {
+/* background-color: darkgrey; */
+background-color: #F5F5F5;
+}
+
+a {
+color: #56B4E9
+}

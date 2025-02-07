@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'whatsapp.apps.WhatsappConfig',
     'chat.apps.ChatConfig',
     'channels',
+    'websox',
 ]
 
     # 'daphne',

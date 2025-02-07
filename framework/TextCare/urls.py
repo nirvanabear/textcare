@@ -30,4 +30,5 @@ urlpatterns = [
     path('message', views.reply), # ChatGPT incoming endpoint
     path('whatsapp/', include('whatsapp.urls')),
     path('chat/', include('chat.urls')),
+    path('websox/', include('websox.urls')),
 ] 

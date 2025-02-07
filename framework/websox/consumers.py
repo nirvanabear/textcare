@@ -5,7 +5,7 @@ class MyConsumer(WebsocketConsumer):
     def connect(self):
         self.accept()
         self.send(text_data=json.dumps({
-            'message': 'GeeksforGeeks'
+            'message': 'Hi, Dude!'
         }))
     
     def disconnect(self, close_code):

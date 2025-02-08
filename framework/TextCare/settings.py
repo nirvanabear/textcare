@@ -185,6 +185,8 @@ CSRF_TRUSTED_ORIGINS = [f"https://{env('EC2_DNS_NAME')}",]
 # Logging
 # https://docs.djangoproject.com/en/5.1/topics/logging/#top
 
+LOGGING_CONFIG = None
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

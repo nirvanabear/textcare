@@ -68,6 +68,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'config.exceptions.except_logger.ExceptionLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'TextCare.urls'
@@ -185,7 +186,7 @@ CSRF_TRUSTED_ORIGINS = [f"https://{env('EC2_DNS_NAME')}",]
 # Logging
 # https://docs.djangoproject.com/en/5.1/topics/logging/#top
 
-LOGGING_CONFIG = None
+
 
 LOGGING = {
     "version": 1,

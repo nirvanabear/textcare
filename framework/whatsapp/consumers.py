@@ -10,7 +10,8 @@ from datetime import datetime
 logger = logging.getLogger('django')
 dtn = datetime.now().strftime('%Y-%m-%d %H:%M') + " "
 
-class ChatConsumer(WebsocketConsumer):
+
+class WhatsappConsumer(WebsocketConsumer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
@@ -22,7 +23,8 @@ class ChatConsumer(WebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'chat_{self.room_name}'
         Channel.objects.create(channel_name=self.channel_name)
-        logger.debug(dtn + "/chat/ channel name: " + str(f"{self.channel_name}"))
+        logger.debug(dtn + "/whatsapp/ channel name: " + str(f"{self.channel_name}"))
+        # Room.objects.create(name=self.channel_name)
 
         # connection has to be accepted
         self.accept()

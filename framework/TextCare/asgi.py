@@ -17,8 +17,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'TextCare.settings')
 
 django.setup()
 
-# from websox.routing import websocket_urlpatterns
-from chat.routing import websocket_urlpatterns
+from websox.routing import websox_urlpatterns
+from chat.routing import chat_urlpatterns
+from whatsapp.routing import whatsapp_urlpatterns
 
 from django.core.asgi import get_asgi_application
 
@@ -35,7 +36,7 @@ from django.core.asgi import get_asgi_application
 application = ProtocolTypeRouter({
   'http': get_asgi_application(),
   'websocket': URLRouter(
-      websocket_urlpatterns
+      websox_urlpatterns + chat_urlpatterns + whatsapp_urlpatterns
     ),
 })
 

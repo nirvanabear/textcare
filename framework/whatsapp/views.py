@@ -14,8 +14,10 @@ import re
 
 import openai
 from django.db import transaction
-from .models import Conversation, ClientLog, ChatSession, ChatLog
+
+from .models import Conversation, ClientLog, ChatSession, ChatLog, Message
 from .utils import send_message2, logger
+from chat.models import Room, Channel
 
 from django.utils.timezone import now
 from datetime import datetime
@@ -23,8 +25,9 @@ import pytz
 from django.conf import settings
 
 import logging
-from django.conf import settings
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 
 # Initialise environment variables
 env = environ.Env()
@@ -33,7 +36,7 @@ environ.Env.read_env()
 openai.api_key = f"{env('OPENAI_API_KEY')}"
 
 logger = logging.getLogger('django')
-
+dtn = datetime.now().strftime('%Y-%m-%d %H:%M') + " "
 
 def add_first_line(original, string):
     '''Adds a new line to a text file as the first line.'''
@@ -228,10 +231,13 @@ def set_chat(request):
 
 def open_chat(request):
     """Chat function for WhatsApp sending"""
+    logger.debug(dtn + "open_chat() function called.")
 
     send_message_url = f"{env('SEND_MESSAGE_URL')}"
     end_session_url = f"{env('END_SESSION_URL')}"
     issues_url = f"{env('ISSUES_URL')}"
+
+    chat_room, created = Room.objects.get_or_create(name='Room1')
 
     context = {
         'send_message_url': send_message_url,
@@ -263,11 +269,12 @@ def send_message(request):
         from_=f"whatsapp:+1{twilio_phone}",
         to=f"whatsapp:+1{phone_num}",
     )
-    print(message.body)
+    logger.debug(message.body)
 
     message_log = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + phone_num + "_log.txt"
     message_w_id = "Doctor: " + body
     add_first_line(message_log, message_w_id)
+    logger.debug("Message logged to text file.")
 
     # Adds message to the chat log.
     try:
@@ -275,25 +282,44 @@ def send_message(request):
             client, create_client = ClientLog.objects.get_or_create(
                 phone_num=phone_num
             )
+            # chat_room, created = Room.objects.get_or_create(name='Room1')
         open_session_set = ChatSession.objects.filter(open_session=True, client=client)
         # Chooses the most recent open session.
         latest = datetime.min.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
         session = None
         for item in open_session_set:
-            print("Open chat: ")
-            print(item)
+            # logger.debug(str(item))
             if item.start_time > latest:
                 latest = item.start_time
                 session = item
-        print("~~~~~~~~~~~~HERE~~~~~~~~~~~")
-        # Adds new incoming message to the chat log.
+        logger.debug(dtn + f"send_message: session={str(session.session_id)}")
+
+        # Adds new outgoing message to the chat log.
         message_w_id = "Doctor: " + body
         new_message = ChatLog(message=message_w_id, session=session)
         new_message.save()
+
+        # Retrieve all messages from this session.
+        session_msgs = ChatLog.objects.filter(session=session)
+        log_text = ""
+        for chat_msg in session_msgs:
+            # logger.debug(chat_msg.message)
+            log_text += chat_msg.message
+
+        # Send contents of chat session to websocket window.
+        # filtered by session_id and sorted by timestamp
+        channel_name = Channel.objects.latest('timestamp').channel_name
+        logger.debug(dtn + f"send_message: {channel_name}")
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.send)(channel_name, {"type": "chat_message", "message": "Hello from views."})
+        # except:
+        #     logger.exception("?")
+
+        # logger.debug(dtn + "send_message: no error")
     except:
         response = MessagingResponse()
-        response.message('Client database entry error.')
-        print('Client database entry error.')
+        response.message(dtn + 'send_message: Database entry error.')
+        logger.exception(dtn + 'send_message: Database entry error.')
         return HttpResponse(str(response))
 
 
@@ -375,8 +401,8 @@ def end_session(request):
         print(session)
     except:
         response = MessagingResponse()
-        response.message('Client database entry error.')
-        print('Client database entry error.')
+        response.message('end_session: Client database entry error.')
+        print('end_session: Client database entry error.')
         return HttpResponse(str(response))
  
 
@@ -440,6 +466,8 @@ def reply(request):
             client, create_client = ClientLog.objects.get_or_create(
                 phone_num=number
             )
+            # 
+            chat_room, created = Room.objects.get_or_create(name='Room1')
     except:
         response = MessagingResponse()
         response.message('Client database entry error.')
@@ -492,21 +520,24 @@ def reply(request):
         message_w_id = "Patient: " + body
         new_message = ChatLog(message=message_w_id, session=session)
         new_message.save()
+        
 
 
-        logger.debug("before message logged")
         # Logs messages to text file for the incoming phone number.
         message_log = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + number + "_log.txt"    ## Deprecated ## 
         # message_w_id = "--- " + body
         # Adds message to message log for this phone number.
         add_first_line(message_log, message_w_id)
-        logger.debug("after message logged")
+        logger.debug("After message logged")
         
         # Checks client state and bypasses GPT for live chat if needed.
         if client.state > 23:
-            bypass_info = f"Patient state is  {client.state}. Bypass to the chat function!"
+            bypass_info = f"Patient state is {client.state}. Bypass to the chat function!"
             logger.debug(bypass_info)
+            # Join channel layer, send database contents.
+            # render(request, 'chat.html', context=context)
             return HttpResponse('')
+            # return render(request, "whatsapp/home.html", context=context)
 
         # Filter for all messages that match the session id.
         # Add all previous messages to the TriageGPT conversation.

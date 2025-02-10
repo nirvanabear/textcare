@@ -36,18 +36,9 @@
         const param_object = new URLSearchParams(url);
         const phone_num = param_object.get('phone');
 
-        // Old chat console code:
-        // console.log(phone_num);
-        // const console = document.getElementById("console_src");
-        // console.src = `/static/T${phone_num}.txt`;
-        // document.getElementById("output").innerHTML = 
-        // var myText = `<script src=${phone_num}">
-        //             </html>"`
-
         const logfile = '/whatsapp/message_logs/T' + phone_num + '_log.txt';
 
-
-        // Also a functional view of the of the messages log.
+        // Old messages log.
         // $(document).ready(function() {
         //     setInterval(function() {
         //         $('#output').load(logfile);
@@ -129,6 +120,70 @@
             elem.className += addClass;
             window.location.href = location;
         }
+
+
+
+
+        // const roomName = JSON.parse(document.getElementById('roomName').textContent);
+        const roomName = 'Room1';
+
+        let chatLog = document.querySelector("#chatLog"); 
+        // let chatMessageInput = document.querySelector("#chatMessageInput");
+        // let chatMessageSend = document.querySelector("#chatMessageSend");
+
+        // chatMessageSend.onclick = function() {
+        //     if (chatMessageInput.value.length === 0) return;
+        //     chatSocket.send(JSON.stringify({
+        //         "message": chatMessageInput.value,
+        //     }));
+        //     chatMessageInput.value = "";
+        // };
+
+        let chatSocket = null;
+
+        // Added an extra 's' to make 'wss'.
+        function connect() {
+            chatSocket = new WebSocket("wss://" + window.location.host + "/ws/whatsapp/" + roomName + "/");
+
+            chatSocket.onopen = function(e) {
+                console.log("Successfully connected to the WebSocket.");
+            }
+
+            chatSocket.onclose = function(e) {
+                console.log("WebSocket connection closed unexpectedly. Trying to reconnect in 2s...");
+                setTimeout(function() {
+                    console.log("Reconnecting...");
+                    connect();
+                }, 2000);
+            };
+
+            // chatSocket.onmessage = function(e) {
+            //     const data = JSON.parse(e.data);
+            //     console.log(data);
+
+            //     switch (data.type) {
+            //         case "chat_message":
+            //             chatLog.value += data.message + "\n";
+            //             break;
+            //         default:
+            //             console.error("Unknown message type!");
+            //             break;
+            //     }
+
+                // scroll 'chatLog' to the bottom
+            chatLog.scrollTop = chatLog.scrollHeight;
+            // };
+
+            chatSocket.onerror = function(err) {
+                console.log("WebSocket encountered an error: " + err.message);
+                console.log("Closing the socket.");
+                chatSocket.close();
+            }
+        }
+        connect();
+
+        
+
         
 
         btn.addEventListener("click", send_http);
@@ -158,7 +213,7 @@
     <p>Developed by George & Tiffany</p>
     <h2>Doctor's Chat Console:</h2>
     <br>
-    <pre id="output" style="overflow: auto; height: 100px;">
+    <!-- <pre id="output" style="overflow: auto; height: 100px;">
         <script>
             const script = document.createElement('console_src');
             console_src.src = logfile;
@@ -166,10 +221,12 @@
         <script>
             console.log(text);
         </script>
-    </pre>
+    </pre> -->
 
-
-
+    <div class="mb-2" style="overflow: auto; height: 100px;">
+        <label for="chatLog">Room: #Room1</label>
+        <textarea class="form-control" id="chatLog" readonly></textarea>
+    </div>
 
 <br>
 

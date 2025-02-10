@@ -3,4 +3,4 @@ from . import views
 
 urlpatterns = [
     path('wshome/', views.wshome, name='wshome'),
-]
+]   

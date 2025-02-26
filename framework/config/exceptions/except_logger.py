@@ -12,5 +12,5 @@ class ExceptionLoggingMiddleware:
         try:
             response = self.get_response(request)
         except Exception as e:
-            logging.exception(str(e))
+            logging.exception("Logging Middleware: " + str(e))
         return response

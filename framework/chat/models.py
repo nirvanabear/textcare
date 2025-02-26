@@ -24,6 +24,7 @@ class Room(models.Model):
 
 
 class Message(models.Model):
+    ## NOTE ## Commented out by me? Maybe to avoid auth requirements?
     # user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     room = models.ForeignKey(to=Room, on_delete=models.CASCADE)
     content = models.CharField(max_length=512)
@@ -31,6 +32,9 @@ class Message(models.Model):
 
     def __str__(self):
         return f'{self.user.username}: {self.content} [{self.timestamp}]'
+
+
+## NOTE ## Created to record channel name somewhere usable for views.py
 
 class Channel(models.Model):
     channel_name = models.CharField(max_length=128)

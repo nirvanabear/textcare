@@ -22,6 +22,8 @@ class WhatsappConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'chat_{self.room_name}'
+
+        # Added to send message from views.py1
         Channel.objects.create(channel_name=self.channel_name)
         logger.debug(dtn + "/whatsapp/ channel name: " + str(f"{self.channel_name}"))
         # Room.objects.create(name=self.channel_name)

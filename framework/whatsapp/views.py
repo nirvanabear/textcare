@@ -17,7 +17,7 @@ from django.db import transaction
 
 from .models import Conversation, ClientLog, ChatSession, ChatLog, Message
 from .utils import send_message2, logger
-from chat.models import Room, Channel
+from chat.models import Channel as ChatRoomChannel
 
 from django.utils.timezone import now
 from datetime import datetime
@@ -237,7 +237,7 @@ def open_chat(request):
     end_session_url = f"{env('END_SESSION_URL')}"
     issues_url = f"{env('ISSUES_URL')}"
 
-    chat_room, created = Room.objects.get_or_create(name='Room1')
+    # chat_room, created = Room.objects.get_or_create(name='Room1')
 
     context = {
         'send_message_url': send_message_url,
@@ -308,14 +308,13 @@ def send_message(request):
 
         # Send contents of chat session to websocket window.
         # filtered by session_id and sorted by timestamp
-        channel_name = Channel.objects.latest('timestamp').channel_name
+
+        ## TODO ##
+        channel_name = ChatRoomChannel.objects.latest('timestamp').channel_name
         logger.debug(dtn + f"send_message: {channel_name}")
         channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.send)(channel_name, {"type": "chat_message", "message": "Hello from views."})
-        # except:
-        #     logger.exception("?")
+        async_to_sync(channel_layer.send)(channel_name, {"type": "chat_message", "message": f"{body}"})
 
-        # logger.debug(dtn + "send_message: no error")
     except:
         response = MessagingResponse()
         response.message(dtn + 'send_message: Database entry error.')
@@ -467,7 +466,7 @@ def reply(request):
                 phone_num=number
             )
             # 
-            chat_room, created = Room.objects.get_or_create(name='Room1')
+            # chat_room, created = Room.objects.get_or_create(name='Room1')
     except:
         response = MessagingResponse()
         response.message('Client database entry error.')
@@ -490,7 +489,7 @@ def reply(request):
                 if item.start_time > latest:
                     latest = item.start_time
                     session = item
-        # Creates a new open session in none exist.
+        # Creates a new open session if none exist.
         elif client.state == 20:
             session = ChatSession(
                 client=client,
@@ -500,7 +499,7 @@ def reply(request):
     except:
         response = MessagingResponse()
         response.message('Client status error.')
-        print('Client status error.')
+        logger.exception(dtn + 'Client status error.')
         return HttpResponse(str(response))
 
     logger.debug("Database entry and status checked.") 
@@ -534,7 +533,13 @@ def reply(request):
         if client.state > 23:
             bypass_info = f"Patient state is {client.state}. Bypass to the chat function!"
             logger.debug(bypass_info)
+
+            ## TODO ##
             # Join channel layer, send database contents.
+            channel_name = ChatRoomChannel.objects.latest('timestamp').channel_name
+            logger.debug(dtn + f"reply(): {channel_name}")
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.send)(channel_name, {"type": "chat_message", "message": f"{body}"})
             # render(request, 'chat.html', context=context)
             return HttpResponse('')
             # return render(request, "whatsapp/home.html", context=context)
@@ -600,6 +605,7 @@ def reply(request):
     except:
         response = MessagingResponse()
         response.message('TriageGPT error. Please try again. :,(')
+        logger.exception(dtn + "reply() error traceback: ")
         return HttpResponse(str(response))
        
 

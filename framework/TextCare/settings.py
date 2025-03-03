@@ -32,7 +32,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = f"{env('SECRET_KEY')}"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 # DEBUG = f"{env('DEBUG')}"
 
 
@@ -51,15 +51,16 @@ INSTALLED_APPS = [
     'catalog.apps.CatalogConfig', 
     'whatsapp.apps.WhatsappConfig',
     'chat.apps.ChatConfig',
-    'channels',
     'websox',
+    'channels',
+    'corsheaders',
 ]
 
-    # 'daphne',
-    # 'channels',
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     # 'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -68,7 +69,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'config.exceptions.except_logger.ExceptionLoggingMiddleware',
+    # 'config.exceptions.except_logger.ExceptionLoggingMiddleware',
+
 ]
 
 ROOT_URLCONF = 'TextCare.urls'
@@ -178,10 +180,12 @@ STATICFILES_DIRS = [
     "/home/ubuntu/django/framework/whatsapp/static",
 ]
 
-ALLOWED_HOSTS=[f".{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}", f"{env('EC2_HOST_NAME')}","localhost"]
+ALLOWED_HOSTS=[f".{env('EC2_DNS_NAME')}", f"{env('IP_ADDRESS')}", f"{env('EC2_HOST_NAME')}","localhost", "0.0.0.0"]
 
-CSRF_TRUSTED_ORIGINS = [f"https://{env('EC2_DNS_NAME')}",]
+CSRF_TRUSTED_ORIGINS = [f"https://{env('EC2_DNS_NAME')}", f"https://www.{env('EC2_DNS_NAME')}"]
 
+CORS_ALLOWED_ORIGINS = [f"https://{env('EC2_DNS_NAME')}", f"https://www.{env('EC2_DNS_NAME')}"]
+# CORS_ALLOW_ALL_ORIGINS = True
 
 # Logging
 # https://docs.djangoproject.com/en/5.1/topics/logging/#top

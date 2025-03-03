@@ -19,6 +19,7 @@
         </style>
         <link rel="shortcut icon" href="{% static 'ed.ico' %}" />
         <link rel="stylesheet" href="{% static 'css/style2.css' %}" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
     </head>
     <body>
         <div class="container mt-3 p-5">
@@ -32,6 +33,7 @@
                     <div class="input-group">
                         <input type="text" class="form-control" id="chatMessageInput" placeholder="Enter your chat message">
                         <div class="input-group-append">
+                            {% csrf_token %}
                             <button class="btn btn-success" id="chatMessageSend" type="button">Send</button>
                         </div>
                     </div>
@@ -44,6 +46,9 @@
             </div>
             {{ room.name|json_script:"roomName" }}
         </div>
+        <!-- <script>const url = "{{ send_message_url }}";</script> -->
+         <div hidden id="url">{{ send_message_url }}</div>
+         <div hidden id="phone_num">{{ room.name }}</div>
         <script src="{% static 'room.js' %}"></script>
     </body>
 </html>

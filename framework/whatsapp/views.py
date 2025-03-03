@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, requires_csrf_token
 from twilio.twiml.messaging_response import MessagingResponse
 
 import os
@@ -28,6 +28,10 @@ import logging
 
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+
+import websocket
+
+
 
 # Initialise environment variables
 env = environ.Env()
@@ -159,9 +163,11 @@ def message(request):
         return HttpResponse(str(response))
 
 
-
+@requires_csrf_token
 def chat(request):
     """Chat function for WhatsApp sending"""
+    logger.debug(dtn + f"/chat/ request: {request}")
+
 
     message = "template check"
     set_chat_url = f"{env('SET_CHAT_URL')}"
@@ -176,6 +182,9 @@ def chat(request):
 
 def set_chat(request):
     '''Adds contact number to the chat session.'''
+    logger.debug(dtn + f"/set_chat/ request: {request}")
+    logger.debug(dtn + f"/set_chat/ request.body: {request.body}")
+
     user_input = json.loads(request.body)
     logger.debug(type(user_input))
 
@@ -310,10 +319,10 @@ def send_message(request):
         # filtered by session_id and sorted by timestamp
 
         ## TODO ##
-        channel_name = ChatRoomChannel.objects.latest('timestamp').channel_name
-        logger.debug(dtn + f"send_message: {channel_name}")
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.send)(channel_name, {"type": "chat_message", "message": f"{body}"})
+        # channel_name = ChatRoomChannel.objects.latest('timestamp').channel_name
+        # logger.debug(dtn + f"send_message: {channel_name}")
+        # channel_layer = get_channel_layer()
+        # async_to_sync(channel_layer.send)(channel_name, {"type": "chat_message", "message": f"{body}"})
 
     except:
         response = MessagingResponse()
@@ -332,8 +341,6 @@ def send_message(request):
         # 'whatsapp_num': whatsapp_num,
         # 'body': json.loads(request.POST.dict())
     }
-
-
     return render(request, 'show_context.html', context=context)
 
 
@@ -387,7 +394,7 @@ def end_session(request):
         open_session_set = ChatSession.objects.filter(open_session=True, client=client)
         latest = datetime.min.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
         session = None
-        # print("Min time: ")
+        # print—("Min time: ")
         # print(latest)
         for item in open_session_set:
             if item.start_time > latest:
@@ -534,12 +541,14 @@ def reply(request):
             bypass_info = f"Patient state is {client.state}. Bypass to the chat function!"
             logger.debug(bypass_info)
 
+            # chat_room, created = Room.objects.get_or_create(name=number)
+
             ## TODO ##
             # Join channel layer, send database contents.
-            channel_name = ChatRoomChannel.objects.latest('timestamp').channel_name
+            channel_name = ChatRoomChannel.objects.filter(room__name=number).latest('timestamp').channel_name
             logger.debug(dtn + f"reply(): {channel_name}")
             channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.send)(channel_name, {"type": "chat_message", "message": f"{body}"})
+            async_to_sync(channel_layer.send)(channel_name, {"type": "chat_message", "message": f"{body}", "sender": f"{number}"})
             # render(request, 'chat.html', context=context)
             return HttpResponse('')
             # return render(request, "whatsapp/home.html", context=context)

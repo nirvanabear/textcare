@@ -29,6 +29,45 @@ def index(request):
         'num_books_with_the': num_books_with_the,
     }
 
+    ## TODO ##
+    ## Creating a WebSocket in a separate process. 
+    ## Needs imports: environ, websocket
+    
+    # def on_open(wsapp):
+    #     wsapp.send("Hello")
+    #     logger.debug("PID:")
+    #     logger.debug(os.getpid())
+
+    # def on_message(wsapp, message):
+    #     logger.debug(message)
+
+    # def on_ping(wsapp, message):
+    #     logger.debug("Got a ping! A pong reply has already been automatically sent.")
+
+    # def on_pong(wsapp, message):
+    #     logger.debug("Got a pong! No need to respond")
+    #     logger.debug("PID:")
+    #     logger.debug(os.getpid())
+    #     wsapp.ping_count += 1
+    #     if wsapp.ping_count > 5:
+    #         wsapp.close()
+    #     logger.debug(f"Ping count: {wsapp.ping_count}")
+
+
+    # websocket.enableTrace(True)
+    # wsapp = websocket.WebSocketApp("wss://" + f"{env('EC2_DNS_NAME')}" + "/ws/chat/torture/", on_message=on_message, on_ping=on_ping, on_pong=on_pong)
+    
+    # logger.debug("wss://" + f"{env('EC2_DNS_NAME')}" + "/ws/chat/torture/")
+
+    # wsapp.ping_count = 0
+
+    # wsapp.run_forever(ping_interval=6, ping_timeout=5, ping_payload="This is an optional ping payload")  
+
+    # wsapp.close()
+
+    #######
+    
+
     # Render the HTML template index.html with the data in the context variable
     return render(request, 'home.html', context=context)
 

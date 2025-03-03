@@ -24,39 +24,11 @@
 <script>
     // Sets functionality after HTML is available. 
     document.addEventListener("DOMContentLoaded", function () {
-        // const form = document.querySelector("form");
-        // const usernameInput = document.getElementById("username");
-        // const emailInput = document.getElementById("email");
 
         var btn = document.getElementById("enter_num");
         const reset = document.getElementById("clear_num");
         const input_field = document.getElementById("user_input");
-        // const input_field = document.getElementById("user_input");
-        // var number = document.getElementById("user_input").value;
-        // var num_btn = document.getElementById("enter_num");
 
-        // const scroll = document.getElementById('output'); 
-
-        // Scroll to the bottom
-        // scroll.scrollTop = scroll.scrollHeight; 
-        // var logfile = "/static/T" + number + "_log.txt";
-        // var call_number;
-
-        // function set_number(){
-        //     var number = document.getElementById("phone_num");
-        //     logfile = "/static/T" + number + "_log.txt";
-        //     call_number = "whatsapp:" + number;
-        //     // document.body.innerHTML = document.body.innerHTML.replace('/static/messages.txt', logfile);
-        //     document.getElementById("console_src").src = logfile;
-        // }
-    
-
-        // Also a functional view of the of the messages log.
-        // $(document).ready(function() {
-        //     setInterval(function() {
-        //         $('#output').load(logfile);
-        //     }, 1000);        
-        // });
 
         // Saves us from CSRF hell.
         function getCookie(name) {
@@ -106,18 +78,20 @@
             }
 
             let request = new Request(url, {
-                method: 'POST',
-                credentials: "same-origin",
+                method: "POST",
                 body: JSON.stringify(data),
                 headers: new Headers({
                     "X-CSRFToken": getCookie("csrftoken"),
-                    "Accept": "application/json",
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
+                    "Content-Type": "application/json"
                 })
             });
             // fetch() returns the validated reCaptcha results.
             // Creates link updated with phone number as parameter.
+
+            // EDIT //
+            console.log("Token: ");
+            console.log(getCookie("csrftoken"));
+
             fetch(request)
                 .then(response => response.json())
                 .then(data => {

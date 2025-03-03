@@ -21,10 +21,14 @@ class ChatConsumer(WebsocketConsumer):
     def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'chat_{self.room_name}'
+        self.room = Room.objects.get(name=self.room_name)
         
         # Added to send message in channel from whatsapp views.py
-        Channel.objects.create(channel_name=self.channel_name)
-        logger.debug(dtn + "/chat/ channel name: " + str(f"{self.channel_name}"))
+        try:
+            Channel.objects.create(channel_name=self.channel_name, room=self.room)
+            logger.debug(dtn + "/chat/ consumer channel name: " + str(f"{self.channel_name}"))
+        except:
+            logger.exception("Channel db not creating entry.")
 
         # connection has to be accepted
         self.accept()

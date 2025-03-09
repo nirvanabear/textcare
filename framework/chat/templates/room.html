@@ -35,6 +35,7 @@
                         <div class="input-group-append">
                             {% csrf_token %}
                             <button class="btn btn-success" id="chatMessageSend" type="button">Send</button>
+                            <button class="btn btn-success" id="change" type="button">Add to Chat</button>
                         </div>
                     </div>
                 </div>
@@ -49,6 +50,7 @@
         <!-- <script>const url = "{{ send_message_url }}";</script> -->
          <div hidden id="url">{{ send_message_url }}</div>
          <div hidden id="phone_num">{{ room.name }}</div>
+         <div hidden id="change_url">{{ change_session_url }}</div>
         <script src="{% static 'room.js' %}"></script>
     </body>
 </html>

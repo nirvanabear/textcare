@@ -2,7 +2,7 @@
 
 
 {% block title %}
-    <title>Chat-o-rama</title>
+    <title>TextCare</title>
 {% endblock %}
 
 
@@ -20,6 +20,11 @@
         background-color: #0072B2;
         color: #E69F00;
     }
+    #chatLog {
+                height: 300px;
+                background-color: #FFFFFF;
+                resize: none;
+    }
 </style>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
@@ -30,6 +35,8 @@
         const reset = document.getElementById("clear");
         const input_field = document.getElementById("user_input");
         const end = document.getElementById("end");
+        const change = document.getElementById("change");
+        
 
     
         const url = window.location.search;
@@ -37,6 +44,8 @@
         const phone_num = param_object.get('phone');
 
         const logfile = '/whatsapp/message_logs/T' + phone_num + '_log.txt';
+        
+        // document.getElementById("chat_label").innerHTML = "Patient: " + phone_num;
 
         // Old messages log.
         // $(document).ready(function() {
@@ -115,6 +124,28 @@
             });
             fetch(request);
         }
+
+
+        function change_session() {
+            const url = "{{ change_session_url }}";
+
+            let data = {
+                number: phone_num,
+            }
+
+            let request = new Request(url, {
+                method: 'POST',
+                credentials: "same-origin",
+                body: JSON.stringify(data),
+                headers: new Headers({
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Accept": "application/json",
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                })
+            });
+            fetch(request);
+        }
         
         function change_end_color(location, addClass, elem) {
             elem.className += addClass;
@@ -122,12 +153,14 @@
         }
 
 
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
 
         // const roomName = JSON.parse(document.getElementById('roomName').textContent);
-        const roomName = 'Room1';
 
+        const roomName = phone_num;
         let chatLog = document.querySelector("#chatLog"); 
+
         // let chatMessageInput = document.querySelector("#chatMessageInput");
         // let chatMessageSend = document.querySelector("#chatMessageSend");
 
@@ -143,7 +176,7 @@
 
         // Added an extra 's' to make 'wss'.
         function connect() {
-            chatSocket = new WebSocket("wss://" + window.location.host + "/ws/whatsapp/" + roomName + "/");
+            chatSocket = new WebSocket("wss://" + window.location.host + "/ws/whatsapp/" + phone_num + "/");
 
             chatSocket.onopen = function(e) {
                 console.log("Successfully connected to the WebSocket.");
@@ -155,24 +188,25 @@
                     console.log("Reconnecting...");
                     connect();
                 }, 2000);
-            };
+            };1
 
-            // chatSocket.onmessage = function(e) {
-            //     const data = JSON.parse(e.data);
-            //     console.log(data);
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                
 
-            //     switch (data.type) {
-            //         case "chat_message":
-            //             chatLog.value += data.message + "\n";
-            //             break;
-            //         default:
-            //             console.error("Unknown message type!");
-            //             break;
-            //     }
+                switch (data.type) {
+                    case "chat_message":
+                        chatLog.value = data.message + "\n";
+                        // console.log(data);
+                        break;
+                    default:
+                        console.error("Unknown message type!");
+                        break;
+                }
 
                 // scroll 'chatLog' to the bottom
             chatLog.scrollTop = chatLog.scrollHeight;
-            // };
+            };
 
             chatSocket.onerror = function(err) {
                 console.log("WebSocket encountered an error: " + err.message);
@@ -180,7 +214,7 @@
                 chatSocket.close();
             }
         }
-        // connect();
+        connect();
 
         
 
@@ -188,7 +222,8 @@
 
         btn.addEventListener("click", send_http);
         reset.addEventListener("click", reset_page); 
-        end.addEventListener("click", end_session); 
+        end.addEventListener("click", end_session);
+        change.addEventListener("click", change_session);
         input_field.addEventListener("keypress", function(event) {
                 if (event.keyCode === 13) {
                     event.preventDefault();
@@ -223,9 +258,15 @@
         </script>
     </pre> -->
 
-    <div class="mb-2" style="overflow: auto; height: 100px;">
-        <label for="chatLog">Room: #Room1</label>
-        <textarea class="form-control" id="chatLog" readonly></textarea>
+    <div>
+        <div class="row">
+            <div class="col-10 col-md-8">
+                <div class="mb-2">
+                    <label for="chatLog">#{{ phone_num }}</label>
+                    <textarea class="form-control" id="chatLog" readonly></textarea>
+                </div>
+            </div>
+        </div>
     </div>
 
 <br>
@@ -233,11 +274,13 @@
 <form name="char_finder" style="font-size:medium;">
     {% csrf_token %}
     <p><label for="user_input"><b>Hit enter, or click "Send", to send text message:</b></nb></b></label></p>
-    <p><textarea rows="2" cols="34" id="user_input" placeholder="Text to be sent"></textarea></p>
+    <p><textarea rows="2" cols="40" id="user_input" placeholder="Text to be sent"></textarea></p>
 
     <p><input type="button" id="enter" value="Send">
-    <input type="reset" id="clear" value="Clear">
-    <input type="button" id="end" value="End Session"></p>
+    <input type="reset" id="clear" value="Clear"></p>
+    <br><br>
+    <p><input type="button" id="end" value="End Session">
+    <input type="button" id="change" value="Switch to Chat"></p>
 
     <p><b>Click "End Session" to end chat session and return patient to triage.</b></p>
 

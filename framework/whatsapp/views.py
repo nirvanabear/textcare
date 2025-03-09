@@ -15,7 +15,7 @@ import re
 import openai
 from django.db import transaction
 
-from .models import Conversation, ClientLog, ChatSession, ChatLog, Message
+from .models import Conversation, ClientLog, ChatSession, ChatLog, Channel
 from .utils import send_message2, logger
 from chat.models import Channel as ChatRoomChannel
 
@@ -55,14 +55,14 @@ def add_first_line(original, string):
 
 
 
-def triage(number, message, waitlist, triage_path, triage_state): 
+def triage(phone_num, message, waitlist, triage_path, triage_state): 
     '''Increments incoming calls through the triage question pathway'''
     message = message.lower()
 
     # Bypass triage questions and send caller to doctor chat.
     with open(waitlist,'r') as f:
         for line in f:
-            if line == number:
+            if line == phone_num:
                 bypass_note = "Call forwarded to chat."
                 print(bypass_note)
                 return bypass_note
@@ -107,7 +107,7 @@ def triage(number, message, waitlist, triage_path, triage_state):
                 question += " Please click on the link to proceed: " + link
                 # Adds number to doctor's waitlist.
                 with open(waitlist, 'a') as i:
-                    i.write(str(number))
+                    i.write(str(phone_num))
     else:
         # Creates the state file if none.
         with open(triage_state, 'w+') as g:
@@ -183,7 +183,7 @@ def chat(request):
 def set_chat(request):
     '''Adds contact number to the chat session.'''
     logger.debug(dtn + f"/set_chat/ request: {request}")
-    logger.debug(dtn + f"/set_chat/ request.body: {request.body}")
+    # logger.debug(dtn + f"/set_chat/ request.body: {request.body}")
 
     user_input = json.loads(request.body)
     logger.debug(type(user_input))
@@ -241,9 +241,12 @@ def set_chat(request):
 def open_chat(request):
     """Chat function for WhatsApp sending"""
     logger.debug(dtn + "open_chat() function called.")
+    logger.debug(dtn + f"/open_chat/ request.body: {request.GET}")
+    logger.debug(dtn + f"URL query: {request.GET['phone']}")
 
     send_message_url = f"{env('SEND_MESSAGE_URL')}"
     end_session_url = f"{env('END_SESSION_URL')}"
+    change_session_url = f"{env('CHANGE_SESSION_URL')}"
     issues_url = f"{env('ISSUES_URL')}"
 
     # chat_room, created = Room.objects.get_or_create(name='Room1')
@@ -251,7 +254,9 @@ def open_chat(request):
     context = {
         'send_message_url': send_message_url,
         'end_session_url': end_session_url,
+        'change_session_url': change_session_url,
         'issues_url': issues_url,
+        'phone_num': request.GET['phone'],
     }
     return render(request, 'open_chat.html', context=context)
 
@@ -301,19 +306,33 @@ def send_message(request):
             if item.start_time > latest:
                 latest = item.start_time
                 session = item
-        logger.debug(dtn + f"send_message: session={str(session.session_id)}")
+        # logger.debug(dtn + f"send_message: session={str(session.session_id)}")
 
         # Adds new outgoing message to the chat log.
         message_w_id = "Doctor: " + body
         new_message = ChatLog(message=message_w_id, session=session)
         new_message.save()
 
+        # Retrieves whole chat session for posting to channel layer.
+        session_chat_set = ChatLog.objects.filter(session=session)
+        session_chat = ""
+        for msg in session_chat_set:
+            session_chat += msg.message + "\n"
+        logger.debug(session_chat)
+
+        # Send updated ChatLog contents for session to channel layer.
+        channel_name = Channel.objects.filter(session=session).latest('timestamp').channel_name
+        logger.debug(dtn + f"send_message(): {channel_name}")
+        channel_layer = get_channel_layer()
+        # Sends to chat via channel layer.
+        async_to_sync(channel_layer.send)(channel_name, {"type": "chat_message", "message": f"{session_chat}"})
+
         # Retrieve all messages from this session.
-        session_msgs = ChatLog.objects.filter(session=session)
-        log_text = ""
-        for chat_msg in session_msgs:
-            # logger.debug(chat_msg.message)
-            log_text += chat_msg.message
+        # session_msgs = ChatLog.objects.filter(session=session)
+        # log_text = ""
+        # for chat_msg in session_msgs:
+        #     # logger.debug(chat_msg.message)
+        #     log_text += chat_msg.message
 
         # Send contents of chat session to websocket window.
         # filtered by session_id and sorted by timestamp
@@ -355,25 +374,25 @@ def end_session(request):
 
     # Removes the phone number from the waitlist, which allows
     # the triage session to restart.
-    waitlist = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "waitlist.txt"
+    # waitlist = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "waitlist.txt"
     # add_first_line(message_log, "~~~~~~~~~~~~~~~~~~~~")
-    match_list = []
-    with open(waitlist, 'r+') as f:
-        with open(str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "new2.txt",'a') as f2:
+    # match_list = []
+    # with open(waitlist, 'r+') as f:
+    #     with open(str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "new2.txt",'a') as f2:
 
-            f.seek(0, 0)
-            num_list = f.readlines()
-            for i in range(len(num_list)):
-                # if str(num_list[i])[:-1] == phone_num:
-                if re.match(phone_num, num_list[i]):
-                    match_list.append(i)
-            for j in range(len(match_list)-1, -1, -1):
-                del num_list[match_list[j]]
-            f.seek(0, 0)
-            for each in num_list:
-                f2.write(each)
-    os.remove(waitlist)
-    os.rename(str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "new2.txt", waitlist)
+    #         f.seek(0, 0)
+    #         num_list = f.readlines()
+    #         for i in range(len(num_list)):
+    #             # if str(num_list[i])[:-1] == phone_num:
+    #             if re.match(phone_num, num_list[i]):
+    #                 match_list.append(i)
+    #         for j in range(len(match_list)-1, -1, -1):
+    #             del num_list[match_list[j]]
+    #         f.seek(0, 0)
+    #         for each in num_list:
+    #             f2.write(each)
+    # os.remove(waitlist)
+    # os.rename(str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "new2.txt", waitlist)
 
     # Resets the triage state.
     triage_state = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + phone_num + "_state.txt"
@@ -428,6 +447,57 @@ def end_session(request):
 
 
 
+def change_session(request):
+    ''' Changes texting to a group chat session.'''
+    user_input = json.loads(request.body)
+    logger.debug("Switch to group chat requested.")
+
+    make_str = str(user_input)
+    # filename = make_str[18:50]
+    phone_num = make_str[-12:-2]
+    logger.debug("/change_session/ called.")
+
+    # Resets triage state in database.
+    try:
+        with transaction.atomic():
+            client, create_client = ClientLog.objects.get_or_create(
+                phone_num=phone_num
+            )
+        client.state = 30
+        client.save()
+
+        link = f"{env('CHAT_URL')}/{phone_num}"
+        link_info = "Here's your chat group page: \n" + link
+        whatsapp_num = "+1" + phone_num
+        send_message2(phone_num, link_info)
+        
+        # Chooses the most recent open session.
+        open_session_set = ChatSession.objects.filter(open_session=True, client=client)
+        latest = datetime.min.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+        session = None
+        # print—("Min time: ")
+        # print(latest)
+        for item in open_session_set:
+            if item.start_time > latest:
+                latest = item.start_time
+                session = item
+        # Ends the session.
+        session.open_session = False
+        session.save()
+    except:
+        response2 = MessagingResponse()
+        response2.message('change_session: Client database entry error.')
+        print('change_session: Client database entry error.')
+        return HttpResponse(str(response2))
+
+    context = {
+        'phone_num': phone_num,
+        'user_input': user_input,
+    }
+    return render(request, 'change_session.html', context=context)  
+
+
+
 def chat_switch(last_message):
     last_message.append({"role": "system", "content": "You are a triage nurse. Read the conversation between a Triage Nurse and a Patient and give a recommendation for the kind of specialist doctor that should treat the patient."})
 
@@ -460,44 +530,53 @@ def chat_switch(last_message):
 def reply(request):
     # Handles incoming texts and coordinates communication with ChatGPT or live agent via a chat console.
     whatsapp_number = request.POST.get('From').split("whatsapp:")[-1]
-    number = whatsapp_number[2:]
+    phone_num = whatsapp_number[2:]
 
-    logger.debug("Function start.")      
+    logger.debug(dtn + "reply(): Function start.")      
 
-    print("###########################")
     # Checks ClientLog for entry using the incoming phone number.
     # Creates a new client entry if none exists.
     try:
         with transaction.atomic():
             client, create_client = ClientLog.objects.get_or_create(
-                phone_num=number
+                phone_num=phone_num
             )
             # 
             # chat_room, created = Room.objects.get_or_create(name='Room1')
     except:
         response = MessagingResponse()
-        response.message('Client database entry error.')
-        print('Client database entry error.')
+        error_msg1 = 'Client database entry error.'
+        response.message(error_msg1)
+        logger.exception(dtn + error_msg1)
         return HttpResponse(str(response))
 
-    # Checks for existing open sessions to join. 
+    # Checks for existing open sessions to join 
+    # or creates a new one. 
     try:
-        if client.state > 20:
+        if 30 > client.state > 20:
+            logger.debug("Between 20 and 30")
+            # If no open sessions exist, then reset state
             open_session_set = ChatSession.objects.filter(open_session=True)
             if len(open_session_set) == 0:
                 client.state = 20
                 client.save()
-            # Chooses the most recent open session.
-            latest = datetime.min.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
-            session = None
-            print("Min time: ")
-            print(latest)
-            for item in open_session_set:
-                if item.start_time > latest:
-                    latest = item.start_time
-                    session = item
+
+            ## TODO ##: Remove
+            # # Chooses the most recent open session.
+            # latest = datetime.min.replace(tzinfo=pytz.timezone(settings.TIME_ZONE))
+            # session = None
+            # print("Min time: ")
+            # print(latest)
+            # for item in open_session_set:
+            #     if item.start_time > latest:
+            #         latest = item.start_time
+            #         session = item
+
+            # # Chooses the most recent open session.
+            session = ChatSession.objects.filter(open_session=True).latest('start_time')
+            logger.debug(f"session: {session}")
         # Creates a new open session if none exist.
-        elif client.state == 20:
+        elif client.state == 20 or client.state == 30:
             session = ChatSession(
                 client=client,
                 start_time=now()
@@ -505,8 +584,9 @@ def reply(request):
             session.save()
     except:
         response = MessagingResponse()
-        response.message('Client status error.')
-        logger.exception(dtn + 'Client status error.')
+        error_msg2 = 'Client status or session error.'
+        response.message(error_msg2)
+        logger.exception(dtn + error_msg2)
         return HttpResponse(str(response))
 
     logger.debug("Database entry and status checked.") 
@@ -518,40 +598,87 @@ def reply(request):
     # If > 23, bypass chatbot for live chat.
     # Live chat view can reset for new session.
 
+    # Adds new incoming message to the chat log.
     try:
         # Extract the message from the incoming webhook request.
         body = request.POST.get('Body', '')
 
-        # Adds new incoming message to the chat log.
+        # Adds message to log.
         message_w_id = "Patient: " + body
         new_message = ChatLog(message=message_w_id, session=session)
         new_message.save()
+    except:
+        response = MessagingResponse()
+        error_msg3 = "Add message to ChatLog error."
+        response.message(error_msg3)
+        logger.exception(dtn + error_msg3)
+        return HttpResponse(str(response))
+
+    try:
+        if 30 > client.state > 23:
+            # Retrieves whole chat session for posting to channel layer.
+            session_chat_set = ChatLog.objects.filter(session=session)
+            session_chat = ""
+            for msg in session_chat_set:
+                session_chat += msg.message + "\n"
+            logger.debug(session_chat)
+
+            # Send updated ChatLog contents for session to channel layer.
+            channel_name = Channel.objects.filter(session=session).latest('timestamp').channel_name
+            logger.debug(dtn + f"send_message(): {channel_name}")
+            channel_layer = get_channel_layer()
+            # Sends to chat via channel layer.
+            async_to_sync(channel_layer.send)(channel_name, {"type": "chat_message", "message": f"{session_chat}", "sender": f"{phone_num}"})
+            logger.debug("Version 1")
+    except:
+        logger.exception("Chat history retrieve or channel layer error.")
+
+    
+    
         
 
-
-        # Logs messages to text file for the incoming phone number.
-        message_log = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + number + "_log.txt"    ## Deprecated ## 
-        # message_w_id = "--- " + body
-        # Adds message to message log for this phone number.
-        add_first_line(message_log, message_w_id)
-        logger.debug("After message logged")
+    ## TODO ##: Remove
+    # Logs messages to text file for the incoming phone number.
+    message_log = str(settings.BASE_DIR) + "/whatsapp/message_logs/" + "T" + phone_num + "_log.txt"    ## Deprecated ## 
+    # message_w_id = "--- " + body
+    # Adds message to message log for this phone number.
+    add_first_line(message_log, message_w_id)
+    logger.debug("After message logged")
+    logger.debug("State: " + f"{client.state}")
         
+
+    try:
         # Checks client state and bypasses GPT for live chat if needed.
-        if client.state > 23:
+        if 30 > client.state > 23:
             bypass_info = f"Patient state is {client.state}. Bypass to the chat function!"
             logger.debug(bypass_info)
+            # return needed here once /chat/ moved elsewhere.
 
-            # chat_room, created = Room.objects.get_or_create(name=number)
+            # chat_room, created = Room.objects.get_or_create(name=phone_num)
+            return HttpResponse('')
 
+        elif client.state >= 30:
             ## TODO ##
-            # Join channel layer, send database contents.
-            channel_name = ChatRoomChannel.objects.filter(room__name=number).latest('timestamp').channel_name
-            logger.debug(dtn + f"reply(): {channel_name}")
+            # Joins group chat function in /chat/ app.
+            # Not used in TextCare.
+            # Find latest channel layer.
+            channel_name_chat = ChatRoomChannel.objects.filter(room__name=phone_num).latest('timestamp').channel_name
+            logger.debug(dtn + f"reply(): {channel_name_chat}")
             channel_layer = get_channel_layer()
-            async_to_sync(channel_layer.send)(channel_name, {"type": "chat_message", "message": f"{body}", "sender": f"{number}"})
+            # Sends to chat via channel layer.
+            async_to_sync(channel_layer.send)(channel_name_chat, {"type": "chat_message", "message": f"{body}", "sender": f"{phone_num}"})
+            logger.debug("Version 2")
             # render(request, 'chat.html', context=context)
             return HttpResponse('')
             # return render(request, "whatsapp/home.html", context=context)
+    except:
+        response = MessagingResponse()
+        error_msg4 = "Channel layer send error."
+        response.message(error_msg4)
+        logger.exception(dtn + error_msg4)
+        return HttpResponse(str(response))
+
+    try:
 
         # Filter for all messages that match the session id.
         # Add all previous messages to the TriageGPT conversation.
@@ -590,12 +717,13 @@ def reply(request):
         # Adds TriageGPT response to ChatLog.
         gpt_response = ChatLog(message=chatgpt_response, session=session)
         gpt_response.save()
+        
 
         # Concluding message for patient going to live chat after three GPT prompts.
         if client.state > 22:
             # Link connects to the live chat functionality.
-            link = f"{env('CHAT_LINK')}"
-            link_info = "We'll get you to a doctor now. Please click on the link to proceed: " + link
+            link = f"{env('CHAT_LINK')}/?phone={phone_num}"
+            link_info = "We'll get you to a medical professional now.\n\n Demo mode - Example chat page for the medical advisor:" + link
             chatgpt_response += "\n\n" + link_info
             last_message = [{"role": "user", "content": tscript_text}]
             last_response = chat_switch(last_message) + "\n\n" + link_info

@@ -20,9 +20,11 @@ def room_view(request, room_name):
     # logger.debug(dtn + "/chat/ channel name: " + str(f"{self.channel_name}"))
 
     send_message_url = f"{env('SEND_MESSAGE_URL')}"
+    change_session_url = f"{env('CHANGE_SESSION_URL')}"
 
     context = {
         'send_message_url': send_message_url,
+        'change_session_url': change_session_url,
         'room': chat_room,
     }
     return render(request, 'room.html', context=context)

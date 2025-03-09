@@ -6,9 +6,12 @@ let chatLog = document.querySelector("#chatLog");
 let chatMessageInput = document.querySelector("#chatMessageInput");
 let chatMessageSend = document.querySelector("#chatMessageSend");
 let onlineUsersSelector = document.querySelector("#onlineUsersSelector");
+let change = document.querySelector("#change");
 
 // Brings in template tag information
 let url = document.getElementById("url").textContent;
+let change_url = document.getElementById("change_url").textContent;
+// let change = document.getElementById("change");
 let phone_num = document.getElementById("phone_num").textContent;
 let send_http_msg = document.querySelector("#chatMessageInput").value;
 
@@ -40,6 +43,16 @@ chatMessageInput.onkeyup = function(e) {
 };
 
 
+// clear the 'chatMessageInput' and forward the message
+chatMessageSend.onclick = function() {
+    if (chatMessageInput.value.length === 0) return;
+    chatSocket.send(JSON.stringify({
+        "message": chatMessageInput.value,
+    }));
+    send_http(chatMessageInput.value);
+    chatMessageInput.value = "";
+};
+
 // Old version:
 // chatMessageSend.onclick = function() {
 //     if (chatMessageInput.value.length === 0) return;
@@ -49,17 +62,9 @@ chatMessageInput.onkeyup = function(e) {
 //##############
 
 
-// clear the 'chatMessageInput' and forward the message
-chatMessageSend.onclick = function() {
-    if (chatMessageInput.value.length === 0) return;
-    chatSocket.send(JSON.stringify({
-        "message": chatMessageInput.value,
-    }));
-    chatMessageInput.value = "";
-};
 
 // NOTE //
-// Additions to allow diverting messages to texting.
+// Additions to allow diverting messages to Whatsapp texting.
 
 // Saves us from CSRF hell.
 function getCookie(name) {
@@ -140,7 +145,6 @@ function connect() {
                     console.log(phone_num);
                     console.log(url);
                     console.log(data.message);
-                    send_http(data.message);
                     break;
                 default:
                     console.error("Unknown message type!");
@@ -161,3 +165,27 @@ function connect() {
     }
 }
 connect();
+
+
+function change_session() {
+
+    let data = {
+        number: phone_num,
+    }
+    console.log(change_url);
+
+    let request = new Request(change_url, {
+        method: 'POST',
+        credentials: "same-origin",
+        body: JSON.stringify(data),
+        headers: new Headers({
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Accept": "application/json",
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+        })
+    });
+    fetch(request);
+}
+
+change.addEventListener("click", change_session);

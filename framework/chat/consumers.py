@@ -22,6 +22,11 @@ class ChatConsumer(WebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'chat_{self.room_name}'
         self.room = Room.objects.get(name=self.room_name)
+
+        ## NOTE ##
+        # Looking into details of scope.
+        logger.debug("self.scope: ")
+        logger.debug(json.dumps(self.scope, indent=4, default=repr))
         
         # Added to send message in channel from whatsapp views.py
         try:
